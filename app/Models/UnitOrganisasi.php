@@ -54,4 +54,9 @@ class UnitOrganisasi extends Model
     {
         return $this->hasMany(LaporanDetail::class, 'unit_organisasi_id');
     }
+
+    public function laporanKinerjaV2s(): HasMany
+    {
+        return $this->hasMany(LaporanKinerjaV2::class, 'unit_organisasi_id');
+    }
 }

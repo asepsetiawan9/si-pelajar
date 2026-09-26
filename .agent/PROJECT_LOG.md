@@ -496,6 +496,59 @@
 - Dashboard SPKO kini langsung menyajikan grafik batang komparatif capaian fisik vs serapan belanja 7 unit, kartu ringkasan eksekutif Camat, dan status verifikasi Sekmat.
 - Fitur ekspor berkas (PDF resmi ber-kop & QR code serta Excel multi-sheet) siap diunduh dengan data komprehensif.
 
+---
+
+## 2026-09-26 - Integrasi Git Remote, Branching Model & Implementasi Pelaporan Kinerja Unit Versi 2
+
+### Apa (What):
+1. **Inisialisasi & Pengaturan Git Repository**:
+   - Inisialisasi Git local repo pada root project.
+   - Menghubungkan remote repository resmi: `https://github.com/asepsetiawan9/si-pelajar.git`.
+   - Meng-commit seluruh artefak SPKO Versi 1 ke branch `main` dan mem-push ke `origin main`.
+   - Membuat dan berpindah ke branch baru `versi-2` (`git checkout -b versi-2`) untuk pengembangan terisolasi.
+2. **Pemisahan Antarmuka & Sembunyikan Versi 1 (Hide v1)**:
+   - Menyembunyikan menu `LaporanDetailResource` (v1) dari navigasi sidebar (`shouldRegisterNavigation() => false`) sesuai instruksi Mr Zeps.
+   - Tetap menjaga keutuhan kode dan fungsionalitas v1 di background / branch `main`.
+3. **Arsitektur & Skema Database Pelaporan Versi 2**:
+   - Dibuat migrasi `2026_09_26_091824_create_laporan_kinerja_v2_table.php`:
+     * `judul_pelaporan`: Nama/agenda pelaporan.
+     * `periode_bulan` & `periode_tahun` serta `tanggal_pelaporan`.
+     * `unit_organisasi_id` (FK `unit_organisasis`).
+     * `user_id` (FK `users`).
+     * Data pejabat pengisi lengkap: `nama_pejabat`, `nip_pejabat`, `jabatan_pejabat`.
+     * `status`: `enum('draft', 'diajukan', 'disetujui', 'ditolak')` default `'draft'`.
+     * `bukti_dukung`: `json` untuk berkas multi-upload dokumen/foto/arsip.
+     * `catatan_verifikasi`, `verified_by`, `verified_at`, `submitted_at`.
+4. **Clean Architecture Implementation (Jarvis Pro Standard)**:
+   - **Model**: `app/Models/LaporanKinerjaV2.php` dengan casts, relasi (`unitOrganisasi`, `user`, `verifier`), helper status & color badge.
+   - **Repository**: `app/Repositories/LaporanKinerjaV2Repository.php` untuk isolasi kueri database & Row-Level Security.
+   - **Service**: `app/Services/LaporanKinerjaV2Service.php` menangani logika bisnis pengiriman (`kirimLaporan`), persetujuan (`setujuiLaporan`), pengembalian revisi (`kembalikanLaporan`), serta otomatisasi notifikasi database Filament.
+   - **Security Policy**: `app/Policies/LaporanKinerjaV2Policy.php` menerapkan hak akses ketat (Kasi hanya melihat/mengedit unitnya sendiri saat draft/revisi; form terkunci pasca diajukan/disetujui; verifikasi eksklusif Sekmat/Superadmin).
+5. **Antarmuka Pengguna Filament v3 Ringkas & Elegan (`LaporanKinerjaV2Resource`)**:
+   - **Formulir Khusus 5 Komponen Inti**:
+     * **Buat Pelaporan**: Judul pelaporan, tanggal pelaporan, bulan dan tahun.
+     * **Unit Organisasi**: Dropdown 7 unit kerja (otomatis terkunci sesuai unit Kasi yang login, namun bebas dipilih jika role Admin/Sekmat).
+     * **Pejabat Pengisi**: Nama, NIP, Jabatan terisi otomatis dari user yang login; khusus Admin/Sekmat disediakan pemilih pejabat (`user_id`) yang secara reaktif mengisi otomatis identitas dan unitnya.
+     * **Upload Bukti Dukung**: Multi-upload file dengan preview, reordering, direct download, dan sanitasi berkas (PDF, DOCX, XLSX, JPG, PNG, ZIP hingga 20MB).
+     * **Status & Alur Verifikasi**: Badge status interaktif (Draft, Perlu Verifikasi, Disetujui, Perlu Revisi) dan riwayat catatan verifikasi.
+   - **Tabel & Aksi Cepat**:
+     * Tab filter cepat: Semua, Draft, Perlu Verifikasi, Disetujui, Perlu Revisi.
+     * Aksi baris: Kirim Laporan (Draft/Revisi -> Diajukan), Setujui (Sekmat/Admin), dan Kembalikan/Revisi dengan modal catatan wajib.
+6. **Seeder Data & Automated Testing**:
+   - Dibuat `LaporanKinerjaV2Seeder.php` dengan 4 variasi laporan (Pelayanan: Diajukan, Trantib: Disetujui, PMD: Ditolak/Revisi, Pemerintahan: Draft).
+   - Dibuat test suite komprehensif `tests/Feature/LaporanKinerjaV2Test.php` (7 test methods, 24 assertions).
+   - Seluruh 59 test suite sistem (306 assertions) lulus **100% GREEN**.
+   - Standardisasi kode dengan Laravel Pint (PSR-12).
+
+### Kenapa (Why):
+- Memenuhi arahan Mr Zeps untuk memisahkan pelaporan versi 1 dengan versi 2, menyembunyikan versi 1 dari navigasi, menyediakan formulir versi 2 yang jauh lebih ringkas dan fokus, serta mengintegrasikan proyek ke repositori Git `https://github.com/asepsetiawan9/si-pelajar` dengan branching model terisolasi.
+
+### Dampak (Impact):
+- Pengguna Kasi memiliki alur pengisian yang sangat cepat dan to-the-point tanpa kompleksitas indikator kuantitatif v1 jika diinginkan.
+- Admin dan Sekmat dapat memilih pejabat pengisi secara fleksibel dan melakukan verifikasi persetujuan/revisi secara instan.
+- Kode versi 1 tetap tersimpan rapi dan aman di branch `main`, sementara pengembangan versi 2 berjalan mulus di branch `versi-2`.
+
+
 
 
 

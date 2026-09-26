@@ -22,7 +22,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if (! app()->runningUnitTests()) {
-            $this->call(DummyDataSeeder::class);
+            $this->call([
+                DummyDataSeeder::class,
+                LaporanKinerjaV2Seeder::class,
+            ]);
         }
     }
 }

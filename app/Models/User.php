@@ -74,6 +74,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(LaporanDetail::class, 'user_id');
     }
 
+    public function laporanKinerjaV2s(): HasMany
+    {
+        return $this->hasMany(LaporanKinerjaV2::class, 'user_id');
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->role === 'superadmin' || $this->hasRole('superadmin');

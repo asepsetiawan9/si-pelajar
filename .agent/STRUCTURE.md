@@ -27,17 +27,21 @@
     - `LaporanDetailIndikator.php`: Capaian fisik & serapan anggaran per rencana aksi beserta otomasi efektivitas & efisiensi.
     - `LaporanDetailLayanan.php`: Sub-tabel rincian layanan / pemohon (termasuk preset 10 layanan PATEN).
     - `LaporanDokumen.php`: Lampiran dokumen bukti dukung fisik/kegiatan.
+    - `LaporanKinerjaV2.php`: Model Pelaporan Kinerja Unit Versi 2 (Judul pelaporan, unit, pejabat pengisi kumplit, status draft/diajukan/disetujui/ditolak, berkas bukti dukung).
   - `Repositories/`:
     - `LaporanRepository.php`: Abstraksi kueri database untuk laporan bulanan, detail unit, progres 7 unit wajib, dan statistik kinerja kecamatan.
+    - `LaporanKinerjaV2Repository.php`: Abstraksi kueri database pelaporan kinerja unit versi 2 (filter per unit Kasi, CRUD, eager loading).
   - `Services/`:
     - `LaporanApprovalService.php`: Logika bisnis persetujuan berjenjang: verifikasi Sekmat (setujui/kembalikan), dispensasi cut-off, pengajuan gabungan ke Camat, dan pengesahan resmi Camat beserta audit log & notifikasi.
     - `LaporanPdfService.php`: Generator dokumen PDF resmi ber-kop surat Pemkab Garut - Kecamatan Malangbong berstandar Permenpan-RB dilengkapi barcode/QR-code verifikasi tanda tangan digital.
+    - `LaporanKinerjaV2Service.php`: Logika bisnis pengiriman laporan v2 (draft -> diajukan), persetujuan Sekmat/Admin, dan pengembalian revisi beserta notifikasi database otomatis.
   - `Http/Controllers/`:
     - `LaporanPdfController.php`: Controller streaming dan pengunduhan berkas PDF resmi per unit dan rekapitulasi kompilasi kecamatan dengan validasi otorisasi.
     - `LaporanExportController.php`: Controller streaming dan pengunduhan berkas Excel multi-sheet (.xlsx) untuk rekap kecamatan dan unit perorangan.
     - `LaporanDokumenController.php`: Controller pengunduhan berkas bukti dukung fisik dengan sanitasi nama berkas dan proteksi Row-Level Security.
   - `Policies/`:
     - `LaporanDetailPolicy.php`: Row-Level Security Policy untuk isolasi unit Kasi, hak delegasi Sekmat, dan validasi form lock pasca submit/cut-off.
+    - `LaporanKinerjaV2Policy.php`: Row-Level Security Policy pelaporan versi 2 (isolasi unit Kasi, kunci form pasca pengajuan, otorisasi verifikasi Sekmat/Admin).
     - `LaporanPolicy.php`: Otorisasi header bulanan kecamatan (Superadmin, Sekmat, Camat).
   - `Exports/`:
     - `LaporanKinerjaExport.php`: Master multi-sheet Excel export generator (WithMultipleSheets).
@@ -62,7 +66,8 @@
     - `UnitOrganisasiResource.php`: Manajemen 7 unit operasional (Akses: Superadmin).
     - `SasaranStrategisResource.php`: Master sasaran strategis Camat (Akses: Superadmin & Sekmat).
     - `RencanaAksiResource.php`: Master rencana aksi unit (Akses: Superadmin & Sekmat).
-    - `LaporanDetailResource.php`: Meja kerja penginputan kinerja Kasi (Wizard 5 tab, formula reaktif, preset PATEN, sanitasi upload, filter tahun/bulan, dan aksi unduh PDF/Excel).
+    - `LaporanDetailResource.php`: Formulir laporan unit Versi 1 (DI-HIDE dari navigasi sidebar, tetap utuh di codebase branch main).
+    - `LaporanKinerjaV2Resource.php`: Formulir pelaporan kinerja unit Versi 2 (Hanya: Buat Pelaporan, Unit Organisasi, Pejabat Pengisi Kumplit [Nama, NIP, Jabatan], Status Draft/Diajukan/Disetujui/Ditolak, dan Upload Bukti Dukung Berkas).
     - `VerifikasiLaporanUnitResource.php`: Meja kerja verifikasi Sekmat (Akses: Sekmat & Superadmin). Aksi: Setujui, Kembalikan/Revisi (wajib catatan), Buka Dispensasi, filter tahun/bulan, dan Unduh PDF/Excel.
     - `LaporanKecamatanResource.php`: Meja pengajuan gabungan dan pengesahan Camat (Akses: Sekmat, Camat, Superadmin). Aksi: Ajukan ke Camat (hanya aktif jika 7 unit disetujui), Sahkan Laporan (Camat), Kembalikan ke Sekmat (Camat), filter tahun/bulan, Atur Cut-Off, Buka/Kunci Akses Cepat, dan Unduh Rekap PDF/Excel Resmi.
     - `JadwalCutoffResource.php`: Pusat kendali jadwal cut-off bulanan (Akses: Sekmat & Superadmin). Buka/tutup pengisian kapan saja, custom tanggal cut-off, notifikasi Kasi, dan reset otomatis.
