@@ -15,6 +15,8 @@
         $totalPendingSekmat = $this->getViewData()['totalPendingSekmat'];
         $camatStatusLabel = $this->getViewData()['camatStatusLabel'];
         $camatStatusColor = $this->getViewData()['camatStatusColor'];
+        $totalDokumen = $this->getViewData()['totalDokumen'] ?? 0;
+        $progressPercentage = $this->getViewData()['progressPercentage'] ?? 0;
 
         $isCamat = $user?->isCamat();
         $isSekmat = $user?->isAdminKecamatan();
@@ -43,7 +45,7 @@
             ->implode('');
     @endphp
 
-    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 p-6 sm:p-7 text-white shadow-xl shadow-slate-900/10 border border-slate-700/60 dark:border-slate-800">
+    <div class="relative overflow-hidden rounded-2xl spko-hero-card p-6 sm:p-7 text-white shadow-xl shadow-slate-900/10" style="background: linear-gradient(135deg, #090e1a 0%, #1e293b 55%, #064e3b 100%) !important; color: #ffffff !important; border: 1px solid rgba(51, 65, 85, 0.7) !important;">
         <!-- Ambient Background Glows -->
         <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
         <div class="absolute right-1/3 -bottom-16 h-48 w-48 rounded-full bg-teal-500/10 blur-2xl pointer-events-none"></div>
@@ -108,7 +110,7 @@
             <!-- Right Column: Status Badges & Quick Action Buttons -->
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <!-- Status Chip Contextual -->
-                <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-800/80 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-700/80">
+                <div class="flex items-center justify-between sm:justify-start gap-2 spko-hero-chip px-3.5 py-2 rounded-xl" style="background: rgba(15, 23, 42, 0.85) !important; border: 1px solid rgba(51, 65, 85, 0.8) !important; backdrop-filter: blur(12px) !important;">
                     <div class="text-left">
                         <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Periode Aktif</p>
                         <p class="text-xs font-bold text-white flex items-center gap-1.5">
@@ -143,6 +145,24 @@
                             </span>
                         @endif
                     </div>
+
+                    @if($isKasi)
+                        <div class="h-7 w-[1px] bg-slate-700 mx-1 hidden md:block"></div>
+                        <div class="text-left hidden md:block">
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Batas Waktu</p>
+                            <span class="inline-flex items-center text-xs font-medium text-slate-300">
+                                {{ $sisaWaktuText }}
+                            </span>
+                        </div>
+                    @else
+                        <div class="h-7 w-[1px] bg-slate-700 mx-1 hidden md:block"></div>
+                        <div class="text-left hidden md:block">
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Kepatuhan Unit</p>
+                            <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400">
+                                {{ $approvedUnits }}/{{ $mandatoryTotal }} ({{ $progressPercentage }}%)
+                            </span>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Action Button -->
@@ -155,7 +175,7 @@
                         </a>
 
                         <a href="/admin/laporan-kinerja-v2s"
-                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-slate-600 transition-all">
+                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm spko-hero-btn-secondary transition-all" style="background: rgba(30, 41, 59, 0.85) !important; color: #e2e8f0 !important; border: 1px solid rgba(71, 85, 105, 0.8) !important;">
                             Riwayat
                         </a>
                     @elseif($isSekmat)
@@ -166,7 +186,7 @@
                         </a>
 
                         <a href="/admin/jadwal-cutoffs"
-                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-slate-600 transition-all">
+                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm spko-hero-btn-secondary transition-all" style="background: rgba(30, 41, 59, 0.85) !important; color: #e2e8f0 !important; border: 1px solid rgba(71, 85, 105, 0.8) !important;">
                             Jadwal Cut-Off
                         </a>
                     @elseif($isCamat)

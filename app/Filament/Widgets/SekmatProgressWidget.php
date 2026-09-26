@@ -17,6 +17,10 @@ class SekmatProgressWidget extends BaseWidget
 
     protected static ?int $sort = 1;
 
+    protected int|string|array $columnSpan = 'full';
+
+    protected ?int $columns = 4;
+
     public static function canView(): bool
     {
         $user = auth()->user();

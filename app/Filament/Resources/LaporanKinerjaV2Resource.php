@@ -314,7 +314,11 @@ class LaporanKinerjaV2Resource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(fn (LaporanKinerjaV2 $record) => "Periode: {$record->periode_bulan}/{$record->periode_tahun} • Tgl: {$record->tanggal_pelaporan->format('d/m/Y')}"),
+                    ->description(function (LaporanKinerjaV2 $record): string {
+                        $tgl = $record->tanggal_pelaporan ? \Carbon\Carbon::parse($record->tanggal_pelaporan)->format('d/m/Y') : '-';
+
+                        return "Periode: {$record->periode_bulan}/{$record->periode_tahun} • Tgl: {$tgl}";
+                    }),
 
                 Tables\Columns\TextColumn::make('unitOrganisasi.nama_unit')
                     ->label('Unit Organisasi')

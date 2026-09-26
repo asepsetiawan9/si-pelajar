@@ -6,6 +6,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property string $judul_pelaporan
+ * @property int $periode_bulan
+ * @property int $periode_tahun
+ * @property \Carbon\Carbon|null $tanggal_pelaporan
+ * @property int $unit_organisasi_id
+ * @property int $user_id
+ * @property string $nama_pejabat
+ * @property string $nip_pejabat
+ * @property string $jabatan_pejabat
+ * @property string|null $ringkasan_kegiatan
+ * @property string $status
+ * @property array|null $bukti_dukung
+ * @property string|null $catatan_verifikasi
+ * @property int|null $verified_by
+ * @property \Carbon\Carbon|null $verified_at
+ * @property \Carbon\Carbon|null $submitted_at
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ */
 class LaporanKinerjaV2 extends Model
 {
     use HasFactory;

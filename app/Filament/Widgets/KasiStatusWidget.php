@@ -17,6 +17,10 @@ class KasiStatusWidget extends BaseWidget
 
     protected static ?int $sort = 1;
 
+    protected int|string|array $columnSpan = 'full';
+
+    protected ?int $columns = 4;
+
     public static function canView(): bool
     {
         $user = auth()->user();
@@ -124,7 +128,7 @@ class KasiStatusWidget extends BaseWidget
         // 3. Stat Agenda / Laporan Terkirim (Menggantikan Realisasi)
         if ($laporanV2) {
             $judulSingkat = Str::limit($laporanV2->judul_pelaporan, 32);
-            $tgl = $laporanV2->tanggal_pelaporan ? $laporanV2->tanggal_pelaporan->format('d/m/Y') : '-';
+            $tgl = $laporanV2->tanggal_pelaporan ? Carbon::parse($laporanV2->tanggal_pelaporan)->format('d/m/Y') : '-';
 
             $agendaStat = Stat::make('Agenda Dilaporkan', $judulSingkat)
                 ->description("Tanggal: {$tgl} • Oleh: {$laporanV2->nama_pejabat}")

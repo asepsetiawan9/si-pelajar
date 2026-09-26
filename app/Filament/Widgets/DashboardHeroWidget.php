@@ -121,6 +121,13 @@ class DashboardHeroWidget extends Widget
             $camatStatusColor = $approvedUnits > 0 ? 'info' : 'gray';
         }
 
+        $totalDokumen = LaporanKinerjaV2::where('periode_bulan', $bulan)
+            ->where('periode_tahun', $tahun)
+            ->get()
+            ->sum('bukti_dukung_count');
+
+        $progressPercentage = $mandatoryTotal > 0 ? round(($approvedUnits / $mandatoryTotal) * 100) : 0;
+
         return [
             'user' => $user,
             'salam' => $salam,
@@ -137,6 +144,8 @@ class DashboardHeroWidget extends Widget
             'totalPendingSekmat' => $totalPendingSekmat,
             'camatStatusLabel' => $camatStatusLabel,
             'camatStatusColor' => $camatStatusColor,
+            'totalDokumen' => $totalDokumen,
+            'progressPercentage' => $progressPercentage,
         ];
     }
 }

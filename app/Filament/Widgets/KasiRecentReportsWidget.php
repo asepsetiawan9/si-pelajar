@@ -11,7 +11,10 @@ class KasiRecentReportsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'default' => 12,
+        'xl' => 8,
+    ];
 
     public static function canView(): bool
     {

@@ -14,7 +14,7 @@ class SekmatUnitStatusTableWidget extends BaseWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 4;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -61,7 +61,7 @@ class SekmatUnitStatusTableWidget extends BaseWidget
                         return $v2 ? $v2->judul_pelaporan : 'Belum membuat laporan kinerja';
                     })
                     ->wrap()
-                    ->color(fn (string $state): string => $state === 'Belum membuat laporan kinerja' ? 'gray' : 'default')
+                    ->color(fn (string $state): ?string => $state === 'Belum membuat laporan kinerja' ? 'gray' : null)
                     ->weight(fn (string $state): string => $state === 'Belum membuat laporan kinerja' ? 'normal' : 'medium'),
 
                 Tables\Columns\TextColumn::make('pejabat_pengisi')
@@ -109,6 +109,33 @@ class SekmatUnitStatusTableWidget extends BaseWidget
                         default => 'heroicon-m-x-circle',
                     }),
 
+                Tables\Columns\TextColumn::make('progres_kesiapan')
+                    ->label('Kesiapan')
+                    ->state(function (UnitOrganisasi $record) use ($v2Map): string {
+                        $v2 = $v2Map->get($record->id);
+                        if (! $v2) {
+                            return '<div class="flex items-center gap-1.5"><div class="w-12 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden"><div class="bg-slate-400 h-full w-0"></div></div><span class="text-[10px] text-slate-400 font-semibold">0%</span></div>';
+                        }
+                        $percent = match ($v2->status) {
+                            'disetujui' => 100,
+                            'diajukan' => 75,
+                            'ditolak' => 40,
+                            'draft' => 25,
+                            default => 0,
+                        };
+                        $color = match ($v2->status) {
+                            'disetujui' => 'bg-emerald-500',
+                            'diajukan' => 'bg-sky-500',
+                            'ditolak' => 'bg-rose-500',
+                            'draft' => 'bg-amber-400',
+                            default => 'bg-slate-400',
+                        };
+
+                        return "<div class=\"flex items-center gap-1.5\"><div class=\"w-12 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden\"><div class=\"{$color} h-full\" style=\"width: {$percent}%\"></div></div><span class=\"text-[10px] font-bold text-slate-700 dark:text-slate-300\">{$percent}%</span></div>";
+                    })
+                    ->html()
+                    ->alignCenter(),
+
                 Tables\Columns\TextColumn::make('bukti_dukung')
                     ->label('Bukti Dukung')
                     ->state(function (UnitOrganisasi $record) use ($v2Map): string {
@@ -135,7 +162,7 @@ class SekmatUnitStatusTableWidget extends BaseWidget
                             return '-';
                         }
 
-                        return $v2->tanggal_pelaporan ? $v2->tanggal_pelaporan->format('d/m/Y') : '-';
+                        return $v2->tanggal_pelaporan ? Carbon::parse($v2->tanggal_pelaporan)->format('d/m/Y') : '-';
                     })
                     ->description(function (UnitOrganisasi $record) use ($v2Map): ?string {
                         $v2 = $v2Map->get($record->id);

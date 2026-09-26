@@ -16,6 +16,11 @@ class Dashboard extends BaseDashboard
 
     protected static ?string $navigationLabel = 'Dashboard Utama';
 
+    public function getColumns(): int|string|array
+    {
+        return 12;
+    }
+
     public function filtersForm(Form $form): Form
     {
         $currentYear = (int) now()->year;
@@ -27,7 +32,10 @@ class Dashboard extends BaseDashboard
 
         return $form
             ->schema([
-                Grid::make(2)
+                Grid::make([
+                    'default' => 1,
+                    'sm' => 2,
+                ])
                     ->schema([
                         Select::make('tahun')
                             ->label('Tahun Anggaran')

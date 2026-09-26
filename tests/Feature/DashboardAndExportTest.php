@@ -10,7 +10,9 @@ use App\Filament\Widgets\CamatSummaryWidget;
 use App\Filament\Widgets\DashboardHeroWidget;
 use App\Filament\Widgets\KasiRecentReportsWidget;
 use App\Filament\Widgets\KasiStatusWidget;
+use App\Filament\Widgets\KasiSubmissionTrackerWidget;
 use App\Filament\Widgets\KecamatanPerformanceChartWidget;
+use App\Filament\Widgets\KecamatanStatusDonutChartWidget;
 use App\Filament\Widgets\SekmatProgressWidget;
 use App\Filament\Widgets\SekmatUnitStatusTableWidget;
 use App\Models\Laporan;
@@ -123,6 +125,34 @@ class DashboardAndExportTest extends TestCase
         $sekmat = User::where('email', 'sekmat@malangbong.go.id')->first();
         $this->actingAs($sekmat);
         $this->assertFalse(KasiRecentReportsWidget::canView());
+    }
+
+    public function test_new_modern_widgets_render_successfully_with_rbac(): void
+    {
+        $sekmat = User::where('email', 'sekmat@malangbong.go.id')->first();
+        $camat = User::where('email', 'camat@malangbong.go.id')->first();
+        $kasi = User::where('email', 'kasi.pelayanan@malangbong.go.id')->first();
+
+        // 1. Sekmat: Can view Donut, cannot view KasiSubmissionTracker
+        $this->actingAs($sekmat);
+        $this->assertTrue(KecamatanStatusDonutChartWidget::canView());
+        $this->assertFalse(KasiSubmissionTrackerWidget::canView());
+
+        Livewire::test(KecamatanStatusDonutChartWidget::class)->assertSuccessful();
+
+        // 2. Camat: Can view Donut
+        $this->actingAs($camat);
+        $this->assertTrue(KecamatanStatusDonutChartWidget::canView());
+        $this->assertFalse(KasiSubmissionTrackerWidget::canView());
+
+        Livewire::test(KecamatanStatusDonutChartWidget::class)->assertSuccessful();
+
+        // 3. Kasi: Can view KasiSubmissionTracker, cannot view Donut
+        $this->actingAs($kasi);
+        $this->assertTrue(KasiSubmissionTrackerWidget::canView());
+        $this->assertFalse(KecamatanStatusDonutChartWidget::canView());
+
+        Livewire::test(KasiSubmissionTrackerWidget::class)->assertSuccessful();
     }
 
     public function test_spko_check_deadline_command_and_notifications(): void

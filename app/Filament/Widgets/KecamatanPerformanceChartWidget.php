@@ -12,13 +12,16 @@ class KecamatanPerformanceChartWidget extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Grafik Aktivitas Pelaporan & Kelengkapan Bukti Dukung 7 Unit';
+    protected static ?string $heading = 'Aktivitas Pelaporan & Kelengkapan Bukti Dukung';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 2;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'default' => 12,
+        'xl' => 7,
+    ];
 
-    protected static ?string $maxHeight = '360px';
+    protected static ?string $maxHeight = '320px';
 
     public static function canView(): bool
     {
@@ -39,10 +42,10 @@ class KecamatanPerformanceChartWidget extends ChartWidget
             ->count();
 
         if ($count === 0) {
-            return "Belum ada rekaman laporan kinerja untuk periode {$namaBulan}. Grafik akan terisi otomatis saat unit kerja memasukkan laporan.";
+            return "Belum ada rekaman laporan kinerja untuk periode {$namaBulan}.";
         }
 
-        return "Perbandingan volume laporan dan dokumen bukti dukung fisik terunggah seluruh seksi/subbag periode {$namaBulan}.";
+        return "Volume agenda pelaporan dan dokumen bukti dukung fisik terunggah per seksi/subbag ({$namaBulan}).";
     }
 
     protected function getData(): array
@@ -66,11 +69,11 @@ class KecamatanPerformanceChartWidget extends ChartWidget
             $shortName = match ($unit->kode_unit) {
                 'SUBBAG-UMUM' => 'Subbag Umum',
                 'SUBBAG-KEUANGAN' => 'Subbag Keuangan',
-                'SEKSI-PEMERINTAHAN' => 'Seksi Pemerintahan',
-                'SEKSI-KESRA' => 'Seksi Kesra',
-                'SEKSI-PMD' => 'Seksi PMD',
-                'SEKSI-TRANTIB' => 'Seksi Trantib',
-                'SEKSI-PELAYANAN' => 'Seksi Pelayanan',
+                'SEKSI-PEMERINTAHAN' => 'Pemerintahan',
+                'SEKSI-KESRA' => 'Kesra',
+                'SEKSI-PMD' => 'PMD',
+                'SEKSI-TRANTIB' => 'Trantib',
+                'SEKSI-PELAYANAN' => 'Pelayanan',
                 default => $unit->nama_unit,
             };
 
@@ -97,7 +100,7 @@ class KecamatanPerformanceChartWidget extends ChartWidget
                 [
                     'label' => 'Berkas Bukti Dukung (Dokumen)',
                     'data' => $berkasData,
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.85)', // Emerald-500
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.85)',
                     'borderColor' => '#059669',
                     'borderWidth' => 1.5,
                     'borderRadius' => 6,
@@ -105,13 +108,50 @@ class KecamatanPerformanceChartWidget extends ChartWidget
                 [
                     'label' => 'Laporan / Agenda Terkirim',
                     'data' => $laporanData,
-                    'backgroundColor' => 'rgba(99, 102, 241, 0.85)', // Indigo-500
+                    'backgroundColor' => 'rgba(99, 102, 241, 0.85)',
                     'borderColor' => '#4f46e5',
                     'borderWidth' => 1.5,
                     'borderRadius' => 6,
                 ],
             ],
             'labels' => $labels,
+        ];
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => [
+                        'precision' => 0,
+                        'font' => ['family' => 'Plus Jakarta Sans', 'size' => 11],
+                    ],
+                    'grid' => [
+                        'color' => 'rgba(148, 163, 184, 0.12)',
+                    ],
+                ],
+                'x' => [
+                    'grid' => ['display' => false],
+                    'ticks' => [
+                        'font' => ['family' => 'Plus Jakarta Sans', 'size' => 11, 'weight' => '500'],
+                    ],
+                ],
+            ],
+            'plugins' => [
+                'legend' => [
+                    'position' => 'top',
+                    'align' => 'end',
+                    'labels' => [
+                        'usePointStyle' => true,
+                        'pointStyle' => 'rectRounded',
+                        'padding' => 14,
+                        'font' => ['family' => 'Plus Jakarta Sans', 'weight' => '600', 'size' => 11],
+                    ],
+                ],
+            ],
+            'maintainAspectRatio' => false,
         ];
     }
 
