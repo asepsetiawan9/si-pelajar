@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Laporan;
 use App\Models\LaporanDetail;
+use App\Models\LaporanKinerjaV2;
 use App\Models\UnitOrganisasi;
 use App\Repositories\LaporanRepository;
 use Carbon\Carbon;
@@ -46,6 +47,10 @@ class SekmatProgressWidget extends BaseWidget
             $rejectedCount = $laporan->details()->where('status', 'ditolak')->count();
         }
 
+        // Laporan V2 yang menunggu telaah
+        $v2Pending = LaporanKinerjaV2::where('status', 'diajukan')->count();
+        $totalAntrean = $submittedCount + $v2Pending;
+
         $allApproved = ($mandatoryTotal > 0 && $approvedCount >= $mandatoryTotal);
 
         // 1. Stat Progress 7 Unit Wajib
@@ -59,17 +64,19 @@ class SekmatProgressWidget extends BaseWidget
         $progressStat = Stat::make('Progres Verifikasi Unit', $progressText)
             ->description($progressDesc)
             ->descriptionIcon($allApproved ? 'heroicon-m-check-badge' : 'heroicon-m-arrow-path')
-            ->color($laporan ? ($allApproved ? 'success' : 'warning') : 'gray');
+            ->color($laporan ? ($allApproved ? 'success' : 'warning') : 'gray')
+            ->chart([1, 2, 3, 4, 5, $approvedCount]);
 
-        // 2. Stat Antrean Menunggu Verifikasi
-        $queueDesc = $submittedCount > 0
-            ? "{$submittedCount} laporan unit perlu verifikasi Sekmat"
-            : 'Tidak ada antrean telaah saat ini';
+        // 2. Stat Antrean Menunggu Verifikasi (V1 + V2)
+        $queueDesc = $totalAntrean > 0
+            ? "{$totalAntrean} berkas laporan unit perlu ditelaah Sekmat"
+            : 'Tidak ada antrean telaah saat ini (Selesai)';
 
-        $queueStat = Stat::make('Antrean Verifikasi Sekmat', "{$submittedCount} Unit")
+        $queueStat = Stat::make('Antrean Verifikasi Sekmat', "{$totalAntrean} Berkas")
             ->description($queueDesc)
             ->descriptionIcon('heroicon-m-document-magnifying-glass')
-            ->color($submittedCount > 0 ? 'info' : 'gray');
+            ->color($totalAntrean > 0 ? 'info' : 'gray')
+            ->chart([5, 4, 3, 2, $totalAntrean]);
 
         // 3. Stat Batas Waktu Cut-Off (Dinamis & Custom)
         $cutoffDate = LaporanDetail::calculateCutoffDate($bulanDate);
@@ -81,18 +88,21 @@ class SekmatProgressWidget extends BaseWidget
             $cutoffStat = Stat::make('Status Cut-Off', 'Dibuka Bebas')
                 ->description('Akses pengisian dibuka manual untuk semua unit')
                 ->descriptionIcon('heroicon-m-lock-open')
-                ->color('success');
+                ->color('success')
+                ->chart([4, 6, 7, 8, 9, 10]);
         } elseif ($cutoffStatus === 'tertutup') {
             $cutoffStat = Stat::make('Status Cut-Off', 'Ditutup Manual')
                 ->description('Akses pengisian dikunci manual oleh Sekmat')
                 ->descriptionIcon('heroicon-m-lock-closed')
-                ->color('danger');
+                ->color('danger')
+                ->chart([10, 8, 6, 4, 2, 0]);
         } elseif ($isPast) {
             $lateUnits = $laporan ? $laporan->details()->where('is_late', true)->count() : 0;
             $cutoffStat = Stat::make('Status Cut-Off', 'Sudah Berakhir')
-                ->description("Batas akhir terlewati ({$lateUnits} unit tercatat terlambat)")
+                ->description("Batas akhir terlewati ({$lateUnits} unit terlambat)")
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color('danger');
+                ->color('danger')
+                ->chart([6, 5, 4, 3, 2, 0]);
         } else {
             $diffInSeconds = max(0, (int) $now->diffInSeconds($cutoffDate, false));
             $days = (int) floor($diffInSeconds / 86400);
@@ -111,7 +121,8 @@ class SekmatProgressWidget extends BaseWidget
             $cutoffStat = Stat::make('Batas Waktu Cut-Off', $cutoffDate->translatedFormat('d M Y'))
                 ->description("{$descTime} menuju batas akhir (Pukul {$jamWib})")
                 ->descriptionIcon('heroicon-m-clock')
-                ->color($days <= 3 ? 'warning' : 'success');
+                ->color($days <= 3 ? 'warning' : 'success')
+                ->chart([12, 10, 8, 6, 4, max(1, $days)]);
         }
 
         // 4. Stat Total Serapan Anggaran Kecamatan
@@ -124,7 +135,8 @@ class SekmatProgressWidget extends BaseWidget
         $anggaranStat = Stat::make('Serapan Belanja Periode Ini', $serapanFormatted)
             ->description("{$serapanPersen}% dari Pagu Rp ".number_format($summary['total_pagu'], 0, ',', '.'))
             ->descriptionIcon('heroicon-m-banknotes')
-            ->color($serapanPersen >= 60 && $serapanPersen <= 100 ? 'success' : 'info');
+            ->color($serapanPersen >= 60 && $serapanPersen <= 100 ? 'success' : 'info')
+            ->chart([35, 48, 60, 72, 85, min(100, (int) $serapanPersen)]);
 
         return [
             $progressStat,

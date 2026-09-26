@@ -56,11 +56,13 @@
   - `Filament/Pages/`:
     - `Dashboard.php`: Dashboard akuntabilitas SPKO kustom dengan filter interaktif periode Tahun dan Bulan (HasFiltersForm).
   - `Filament/Widgets/`:
-    - `KasiStatusWidget.php`: Widget status laporan bulanan unit Kasi, countdown cut-off tanggal 10, dan ringkasan capaian fisik/anggaran.
-    - `SekmatProgressWidget.php`: Widget progres kelengkapan 7 unit wajib, antrean telaah verifikasi Sekmat, status cut-off, dan total serapan belanja kecamatan.
-    - `SekmatUnitStatusTableWidget.php`: Tabel monitoring real-time kepatuhan 7 unit operasional (status draf, capaian fisik, belanja, cut-off, link telaah).
-    - `CamatSummaryWidget.php`: Executive summary card Camat (rata-rata efektivitas kinerja %, serapan belanja Rp & %, status pengesahan kompilasi).
-    - `KecamatanPerformanceChartWidget.php`: Grafik batang komparatif capaian fisik (%) vs serapan anggaran (%) seluruh seksi kecamatan.
+    - `DashboardHeroWidget.php`: Hero banner eksekutif adaptif untuk seluruh role (Salam waktu, identitas pejabat, chip periode & cut-off, tombol aksi cepat).
+    - `KasiStatusWidget.php`: Widget status laporan bulanan unit Kasi (V1 & V2), countdown cut-off, capaian fisik/anggaran, dan berkas bukti dukung ber-sparkline.
+    - `KasiRecentReportsWidget.php`: Tabel riwayat pelaporan kinerja unit V2 khusus Kasi dengan catatan telaah Sekmat dan tombol aksi cepat.
+    - `SekmatProgressWidget.php`: Widget progres kelengkapan 7 unit wajib, antrean gabungan verifikasi Sekmat (V1 + V2), status cut-off, dan serapan belanja kecamatan ber-sparkline.
+    - `SekmatUnitStatusTableWidget.php`: Tabel monitoring real-time kepatuhan 7 unit operasional berikon (status draf V1/V2, capaian fisik, belanja, cut-off, link telaah).
+    - `CamatSummaryWidget.php`: Executive summary card Camat (rata-rata efektivitas kinerja %, serapan belanja Rp & %, status pengesahan kompilasi, kepatuhan seksi ber-sparkline).
+    - `KecamatanPerformanceChartWidget.php`: Grafik batang komparatif capaian fisik (%) vs serapan anggaran (%) seluruh seksi dengan palet warna modern Emerald-Indigo.
   - `Filament/Resources/`:
     - `UserResource.php`: Manajemen user dengan form reaktif role-unit dan relasi dinamis.
     - `UnitOrganisasiResource.php`: Manajemen 7 unit operasional (Akses: Superadmin).
@@ -72,6 +74,10 @@
     - `LaporanKecamatanResource.php`: Meja pengajuan gabungan dan pengesahan Camat (Akses: Sekmat, Camat, Superadmin). Aksi: Ajukan ke Camat (hanya aktif jika 7 unit disetujui), Sahkan Laporan (Camat), Kembalikan ke Sekmat (Camat), filter tahun/bulan, Atur Cut-Off, Buka/Kunci Akses Cepat, dan Unduh Rekap PDF/Excel Resmi.
     - `JadwalCutoffResource.php`: Pusat kendali jadwal cut-off bulanan (Akses: Sekmat & Superadmin). Buka/tutup pengisian kapan saja, custom tanggal cut-off, notifikasi Kasi, dan reset otomatis.
 - `resources/views/`:
+  - `filament/custom-styles.blade.php`: Injeksi styling global panel (Font Plus Jakarta Sans, glassmorphism stat cards, soft shadows, micro-animations, custom scrollbars).
+  - `filament/widgets/dashboard-hero-widget.blade.php`: Template kartu hero eksekutif adaptif seluruh peran.
+  - `filament/brand-logo.blade.php`: Logo resmi instansi Pemkab Garut di panel admin.
+  - `filament/login-header.blade.php`: Header resmi halaman login.
   - `pdf/laporan-kinerja-resmi.blade.php`: Template dokumen cetak PDF resmi berstandar Permenpan-RB 53/2014 & 22/2024, kop dinas Pemkab Garut - Malangbong, tabel efektivitas-efisiensi, dan QR code sertifikat verifikasi digital.
 - `config/`:
   - `spko.php`: Konfigurasi cut-off global (`cutoff_day = 10`) dan metadata instansi.

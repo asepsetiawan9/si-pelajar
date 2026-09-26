@@ -13,11 +13,13 @@ class KecamatanPerformanceChartWidget extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Grafik Analisis Capaian Kinerja & Serapan Anggaran per Unit';
+    protected static ?string $heading = 'Grafik Analisis Capaian Kinerja Fisik & Serapan Belanja 7 Unit';
 
     protected static ?int $sort = 3;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected static ?string $maxHeight = '360px';
 
     public static function canView(): bool
     {
@@ -35,10 +37,10 @@ class KecamatanPerformanceChartWidget extends ChartWidget
 
         $laporan = Laporan::whereDate('bulan_pelaporan', $bulanDate->toDateString())->first();
         if (! $laporan) {
-            return "Belum ada rekaman laporan kinerja untuk periode {$namaBulan}. Grafik akan menampilkan data otomatis saat unit organisasi mengisi laporan.";
+            return "Belum ada rekaman laporan kinerja untuk periode {$namaBulan}. Grafik akan terisi otomatis saat unit organisasi memasukkan data.";
         }
 
-        return "Perbandingan realisasi kinerja fisik (%) dan serapan belanja (%) 7 unit operasional periode {$namaBulan}.";
+        return "Perbandingan akuntabilitas kinerja fisik (%) dan serapan belanja (%) seluruh seksi/subbag periode {$namaBulan}.";
     }
 
     protected function getData(): array
@@ -65,7 +67,6 @@ class KecamatanPerformanceChartWidget extends ChartWidget
         $anggaranData = [];
 
         foreach ($units as $unit) {
-            // Label singkat untuk kenyamanan grafik
             $shortName = match ($unit->kode_unit) {
                 'SUBBAG-UMUM' => 'Subbag Umum',
                 'SUBBAG-KEUANGAN' => 'Subbag Keuangan',
@@ -100,16 +101,18 @@ class KecamatanPerformanceChartWidget extends ChartWidget
                 [
                     'label' => 'Capaian Kinerja Fisik (%)',
                     'data' => $kinerjaData,
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.75)', // Emerald
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.85)', // Emerald-500
                     'borderColor' => '#059669',
-                    'borderWidth' => 1,
+                    'borderWidth' => 1.5,
+                    'borderRadius' => 6,
                 ],
                 [
                     'label' => 'Serapan Belanja Anggaran (%)',
                     'data' => $anggaranData,
-                    'backgroundColor' => 'rgba(59, 130, 246, 0.75)', // Blue
-                    'borderColor' => '#2563eb',
-                    'borderWidth' => 1,
+                    'backgroundColor' => 'rgba(99, 102, 241, 0.85)', // Indigo-500
+                    'borderColor' => '#4f46e5',
+                    'borderWidth' => 1.5,
+                    'borderRadius' => 6,
                 ],
             ],
             'labels' => $labels,

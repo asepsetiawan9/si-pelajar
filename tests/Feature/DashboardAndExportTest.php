@@ -7,6 +7,8 @@ use App\Exports\Sheets\IndikatorKinerjaSheet;
 use App\Exports\Sheets\RekapitulasiUnitSheet;
 use App\Exports\Sheets\RincianLayananSheet;
 use App\Filament\Widgets\CamatSummaryWidget;
+use App\Filament\Widgets\DashboardHeroWidget;
+use App\Filament\Widgets\KasiRecentReportsWidget;
 use App\Filament\Widgets\KasiStatusWidget;
 use App\Filament\Widgets\KecamatanPerformanceChartWidget;
 use App\Filament\Widgets\SekmatProgressWidget;
@@ -87,6 +89,40 @@ class DashboardAndExportTest extends TestCase
         $this->assertFalse(SekmatProgressWidget::canView());
 
         Livewire::test(CamatSummaryWidget::class)->assertSuccessful();
+    }
+
+    public function test_dashboard_hero_widget_renders_for_all_roles(): void
+    {
+        $roles = [
+            'superadmin@malangbong.go.id',
+            'sekmat@malangbong.go.id',
+            'camat@malangbong.go.id',
+            'kasi.pelayanan@malangbong.go.id',
+        ];
+
+        foreach ($roles as $email) {
+            $user = User::where('email', $email)->first();
+            $this->actingAs($user);
+
+            Livewire::test(DashboardHeroWidget::class)
+                ->assertSuccessful()
+                ->assertSee($user->name);
+        }
+    }
+
+    public function test_kasi_recent_reports_widget_renders_for_kasi(): void
+    {
+        $kasi = User::where('email', 'kasi.pelayanan@malangbong.go.id')->first();
+        $this->actingAs($kasi);
+        $this->assertTrue(KasiRecentReportsWidget::canView());
+
+        Livewire::test(KasiRecentReportsWidget::class)
+            ->assertSuccessful();
+
+        // Sekmat cannot view KasiRecentReportsWidget
+        $sekmat = User::where('email', 'sekmat@malangbong.go.id')->first();
+        $this->actingAs($sekmat);
+        $this->assertFalse(KasiRecentReportsWidget::canView());
     }
 
     public function test_spko_check_deadline_command_and_notifications(): void

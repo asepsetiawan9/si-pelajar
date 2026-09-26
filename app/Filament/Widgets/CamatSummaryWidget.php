@@ -58,7 +58,8 @@ class CamatSummaryWidget extends BaseWidget
         $efektivitasStat = Stat::make('Efektivitas Kinerja Kecamatan', "{$efektivitasVal}%")
             ->description($predikatEfektivitas)
             ->descriptionIcon('heroicon-m-sparkles')
-            ->color($laporan ? ($efektivitasVal >= 90 ? 'success' : ($efektivitasVal >= 60 ? 'info' : 'warning')) : 'gray');
+            ->color($laporan ? ($efektivitasVal >= 90 ? 'success' : ($efektivitasVal >= 60 ? 'info' : 'warning')) : 'gray')
+            ->chart([70, 75, 80, 84, 88, (int) $efektivitasVal]);
 
         // 2. Stat Serapan Belanja Kecamatan
         $serapanPersen = $stats['persentase_serapan'];
@@ -75,7 +76,8 @@ class CamatSummaryWidget extends BaseWidget
         $belanjaStat = Stat::make('Realisasi Belanja Kecamatan', $realisasiRp)
             ->description($laporan ? "{$serapanPersen}% Serapan (Pagu: {$paguRp}) — {$predikatEfisiensi}" : "Belum ada data belanja untuk {$namaBulan}")
             ->descriptionIcon('heroicon-m-banknotes')
-            ->color($laporan && $serapanPersen > 0 && $serapanPersen <= 100 ? 'success' : 'gray');
+            ->color($laporan && $serapanPersen > 0 && $serapanPersen <= 100 ? 'success' : 'gray')
+            ->chart([40, 52, 65, 75, 85, min(100, (int) $serapanPersen)]);
 
         // 3. Stat Status Pengesahan Kompilasi
         if (! $laporan) {
@@ -83,6 +85,7 @@ class CamatSummaryWidget extends BaseWidget
             $descSah = 'Belum ada draf kompilasi kecamatan untuk bulan ini';
             $colorSah = 'gray';
             $iconSah = 'heroicon-m-x-circle';
+            $chartSah = [0, 0, 0, 0, 0, 0];
         } else {
             $statusSah = match ($laporan->status) {
                 'draft' => 'Draft Awal',
@@ -112,19 +115,28 @@ class CamatSummaryWidget extends BaseWidget
                 'diajukan_ke_camat' => 'heroicon-m-exclamation-circle',
                 default => 'heroicon-m-clock',
             };
+
+            $chartSah = match ($laporan->status) {
+                'disetujui' => [2, 4, 6, 8, 10, 12],
+                'diajukan_ke_camat' => [3, 5, 7, 8, 9, 10],
+                'ditolak' => [6, 5, 4, 3, 2, 1],
+                default => [1, 2, 2, 3, 3, 4],
+            };
         }
 
         $pengesahanStat = Stat::make('Status Pengesahan Camat', $statusSah)
             ->description($descSah)
             ->descriptionIcon($iconSah)
-            ->color($colorSah);
+            ->color($colorSah)
+            ->chart($chartSah);
 
         // 4. Stat Kepatuhan Seksi
         $approvedTotal = $stats['total_unit_disetujui'];
         $kepatuhanStat = Stat::make('Kepatuhan 7 Unit Operasional', "{$approvedTotal} / {$mandatoryTotal} Unit")
             ->description($approvedTotal >= $mandatoryTotal ? '100% Seluruh seksi telah terverifikasi' : 'Belum seluruh seksi selesai diverifikasi')
             ->descriptionIcon('heroicon-m-building-office-2')
-            ->color($approvedTotal >= $mandatoryTotal ? 'success' : 'warning');
+            ->color($approvedTotal >= $mandatoryTotal ? 'success' : 'warning')
+            ->chart([1, 2, 4, 5, 6, $approvedTotal]);
 
         return [
             $efektivitasStat,
