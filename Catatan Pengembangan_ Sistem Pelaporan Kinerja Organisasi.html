@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Catatan Pengembangan: Sistem Pelaporan Kinerja Organisasi (SPKO) - Kecamatan Malangbong</title>
+  <style>
+    :root {
+      box-sizing: border-box;
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --card-bg: #f8fafc;
+      --border: #e2e8f0;
+      --primary: #0284c7;
+      --primary-light: #e0f2fe;
+      --success: #16a34a;
+      --success-light: #dcfce7;
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --code-bg: #f1f5f9;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --card-bg: #1e293b;
+        --border: #334155;
+        --primary: #38bdf8;
+        --primary-light: #082f49;
+        --success: #4ade80;
+        --success-light: #052e16;
+        --warning: #fbbf24;
+        --warning-light: #451a03;
+        --danger: #f87171;
+        --danger-light: #450a0a;
+        --code-bg: #1e293b;
+      }
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      font: 14px/1.65 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    h1, h2, h3, h4 { color: var(--text); font-weight: 700; line-height: 1.3; }
+    h1 { font-size: 1.75rem; margin-bottom: 4px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+    h2 { font-size: 1.3rem; margin-top: 32px; margin-bottom: 12px; color: var(--primary); }
+    h3 { font-size: 1.05rem; margin-top: 20px; margin-bottom: 8px; }
+    p { margin: 8px 0; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: var(--success-light); color: var(--success); }
+    .badge-warning { background: var(--warning-light); color: var(--warning); }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px 0; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+    th { background: var(--card-bg); font-weight: 600; }
+    ul, ol { margin: 8px 0; padding-left: 24px; }
+    li { margin-bottom: 4px; }
+    code { background: var(--code-bg); padding: 2px 5px; border-radius: 4px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.88em; }
+    pre { background: var(--code-bg); padding: 14px; border-radius: 6px; overflow-x: auto; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; border: 1px solid var(--border); }
+    .callout { background: var(--card-bg); border-left: 4px solid var(--primary); padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; }
+    .callout-success { border-left-color: var(--success); }
+    .ai-box { background: var(--card-bg); border: 1px solid var(--primary); border-radius: 6px; padding: 16px; margin: 16px 0; }
+    .ai-box-title { font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 30px 0; }
+  </style>
+</head>
+<body>
+
+<h1>Catatan Pengembangan: Sistem Pelaporan Kinerja Organisasi (SPKO)</h1>
+<p><strong>Lokasi Penerapan:</strong> Pemerintah Kabupaten Garut — Kecamatan Malangbong<br>
+<strong>Versi Dokumen:</strong> <span class="badge badge-success">Revisi 4.1 (AI-Ready Production Blueprint)</span><br>
+<strong>Format Salinan Markdown untuk AI:</strong> <a href="CATATAN_PENGEMBANGAN_SPKO.md"><code>CATATAN_PENGEMBANGAN_SPKO.md</code></a></p>
+
+<div class="callout callout-success">
+  <strong>Ringkasan Arsitektur &amp; Penyelarasan Sistem:</strong>
+  <ol>
+    <li><strong>Sistem Internal Kecamatan Malangbong:</strong> 100% mandiri untuk satu kecamatan, tidak terhubung ke dinas eksternal. Pengesahan akhir dipegang oleh <strong>Camat Malangbong</strong>.</li>
+    <li><strong>Definisi Sekmat:</strong> Pejabat struktural <strong>Sekretaris Camat</strong> sebagai Admin Verifikator dan koordinator pelaporan internal.</li>
+    <li><strong>Standar Permenpan-RB 53/2014 &amp; 22/2024:</strong> Struktur laporan memuat Sasaran Strategis, Rencana Aksi, Capaian Kinerja, Sub-Tabel Rincian Layanan (misal 10 layanan PATEN), serta analisis otomatis Efektivitas &amp; Efisiensi Anggaran.</li>
+    <li><strong>Sistem Cut-Off:</strong> Penguncian otomatis tiap tanggal 10 bulan berikutnya dengan fitur dispensasi dan delegasi input.</li>
+    <li><strong>Instruksi AI Siap Eksekusi:</strong> Setiap fase (Fase 1 s.d 5) dilengkapi blok prompt teknis mandiri untuk dieksekusi oleh AI.</li>
+  </ol>
+</div>
+
+<hr>
+
+<h2>0. Keputusan Desain &amp; Parameter Sistem</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Ketentuan Final</th>
+      <th>Dasar Pertimbangan &amp; Aturan Teknis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Cakupan Sistem</strong></td>
+      <td><strong>Single-Tenant (Internal Kecamatan Malangbong)</strong></td>
+      <td>Aplikasi fokus penuh mengelola pelaporan internal seksi dan sub-bagian di Kecamatan Malangbong tanpa keterlibatan dinas eksternal.</td>
+    </tr>
+    <tr>
+      <td><strong>Approver Tertinggi</strong></td>
+      <td><strong>Camat Malangbong</strong></td>
+      <td>Pejabat pembina akuntabilitas kinerja kecamatan (LKj/LKjIP/PKO). Memberikan pengesahan akhir.</td>
+    </tr>
+    <tr>
+      <td><strong>Posisi Sekmat</strong></td>
+      <td><strong>Sekretaris Camat (Eselon III/b)</strong></td>
+      <td>Pejabat pembina administrasi, bertindak sebagai <em>Admin Verifikator</em> utama yang meneliti pengajuan seluruh unit sebelum diteruskan ke Camat.</td>
+    </tr>
+    <tr>
+      <td><strong>7 Unit Pelapor Wajib</strong></td>
+      <td>
+        Seluruh unit operasional (Leaf Nodes):
+        <ol>
+          <li>Sub Bag Umum, Perencanaan Evaluasi &amp; Pelaporan</li>
+          <li>Sub Bagian Keuangan dan BMD</li>
+          <li>Seksi Pemerintahan</li>
+          <li>Seksi Kesejahteraan Masyarakat</li>
+          <li>Seksi Pemberdayaan Masyarakat dan Desa (PMD)</li>
+          <li>Seksi Ketentraman dan Ketertiban (Trantib)</li>
+          <li>Seksi Pelayanan</li>
+        </ol>
+      </td>
+      <td>Masing-masing unit wajib menyusun dan melaporkan capaian rencana aksi setiap bulan tanpa ada yang opsional.</td>
+    </tr>
+    <tr>
+      <td><strong>Siklus &amp; Batas Waktu (Cut-Off)</strong></td>
+      <td><strong>Tiap tanggal 10 bulan berikutnya (Pukul 23:59 WIB)</strong></td>
+      <td>Contoh: Laporan Agustus 2026 wajib tuntas diinput maksimal 10 September 2026. Lewat batas waktu, form terkunci dan ditandai <code>is_late = true</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Dispensasi &amp; Delegasi Input</strong></td>
+      <td>Dikelola oleh Admin Kecamatan / Sekmat</td>
+      <td>Tersedia fitur buka dispensasi keterlambatan untuk unit tertentu dan input pengganti jika ada pejabat Kasi berhalangan, dengan catatan audit log transparan.</td>
+    </tr>
+    <tr>
+      <td><strong>Format Dokumen Output</strong></td>
+      <td><strong>Auto-Generate PDF Resmi Berkop Surat</strong></td>
+      <td>Dokumen cetak PDF ter-generate otomatis persis dokumen fisik Permenpan-RB 53/2014 &amp; 22/2024 berkop Pemkab Garut - Kecamatan Malangbong dan barcode verifikasi Camat.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>1. Peran Pengguna &amp; Matriks Hak Akses (RBAC)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Peran (Role)</th>
+      <th>Pejabat Terkait</th>
+      <th>Wewenang &amp; Hak Akses</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Superadmin (IT)</strong></td>
+      <td>Pengelola Teknis IT</td>
+      <td>Kelola akun user, role, backup database, audit log, dan parameter teknis sistem.</td>
+    </tr>
+    <tr>
+      <td><strong>Admin Kecamatan</strong></td>
+      <td>Sekmat / Tim Evaluasi Kinerja</td>
+      <td>Kelola master sasaran strategis &amp; rencana aksi tahunan, verifikasi/revisi laporan unit, input bantuan (delegasi), buka kunci dispensasi cut-off, dan ajukan laporan kompilasi ke Camat.</td>
+    </tr>
+    <tr>
+      <td><strong>Kasi / Kasubag</strong></td>
+      <td>Kepala Seksi / Kepala Sub Bagian</td>
+      <td>Input capaian target vs realisasi, input rincian layanan (misal data 88 pemohon PATEN), realisasi anggaran belanja, unggah bukti dukung, dan ajukan laporan unit.</td>
+    </tr>
+    <tr>
+      <td><strong>Camat (Pimpinan)</strong></td>
+      <td>Camat Malangbong</td>
+      <td>Melihat dashboard eksekutif efektivitas &amp; efisiensi belanja se-kecamatan, mengesahkan (Approve) atau mengembalikan laporan kompilasi bulanan.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>2. Standar Instrumen Kinerja (Permenpan-RB 53/2014 &amp; 22/2024)</h2>
+<p>Berdasarkan data dokumen fisik resmi Kecamatan Malangbong, setiap laporan bulanan unit memuat:</p>
+<ol>
+  <li><strong>Latar Belakang:</strong> Dasar hukum Permenpan-RB (template otomatis).</li>
+  <li><strong>Sasaran Strategis &amp; Rencana Aksi:</strong> Terhubung ke Perjanjian Kinerja tahunan Camat.</li>
+  <li><strong>Realisasi Capaian Kinerja:</strong>
+    <ul>
+      <li>Target vs Realisasi &rarr; Persentase Capaian: <code>(Realisasi / Target) * 100%</code>.</li>
+      <li><strong>Sub-Tabel Rincian Layanan / Kegiatan (Dinamis):</strong> Rincian pemohon (misal Seksi Pelayanan: 46 SKTM, 2 Ijin Keramaian, 13 Rekomendasi Kredit, 9 Dispensasi Nikah, 8 Akta Lahir, total 88 pemohon).</li>
+      <li>Catatan keluhan masyarakat, hambatan pelaksanaan, dan solusi.</li>
+    </ul>
+  </li>
+  <li><strong>Analisis Efektivitas Kinerja (Otomatis):</strong>
+    <pre><code>Kriteria Efektivitas:
+- &gt; 100%       : Sangat Efektif (Istimewa)
+- 90% s.d 100% : Efektif (Baik)
+- 60% s.d 89%  : Cukup Efektif (Cukup)
+- &lt; 60%        : Tidak Efektif (Kurang)</code></pre>
+  </li>
+  <li><strong>Analisis Efisiensi Anggaran (Otomatis):</strong>
+    <pre><code>Kriteria Efisiensi Serapan:
+- &lt; 60%        : Sangat Efisien (Istimewa)
+- 60% s.d 90%  : Efisien (Baik)
+- 91% s.d 100% : Cukup Efisien (Cukup)
+- &gt; 100%       : Tidak Efisien (Kurang)</code></pre>
+  </li>
+  <li><strong>Simpulan &amp; Lembar Pengesahan:</strong> Disertai tanda tangan Kasi pengampu dan mengetahui Camat Malangbong.</li>
+</ol>
+
+<hr>
+
+<h2>3. Rencana Tahapan Pengembangan &amp; Instruksi AI per Fase</h2>
+
+<!-- FASE 1 -->
+<div class="ai-box">
+  <div class="ai-box-title">🚀 FASE 1 — Kerangka Sistem, Otentikasi &amp; 4 Role Pengguna</div>
+  <p><strong>Tujuan:</strong> Kerangka Laravel 11 + Filament v3, Spatie RBAC, dan seeding akun resmi Kecamatan Malangbong.</p>
+  <pre><code>KONTEKS:
+Fase 1 dari 5 — Membangun fondasi sistem "Sistem Pelaporan Kinerja Organisasi (SPKO) Kecamatan Malangbong" menggunakan Laravel 11 dan Filament v3 (Single Application Architecture).
+
+TUJUAN:
+Instalasi framework, konfigurasi RBAC Spatie + Filament Shield, migrasi users, dan seeding akun resmi.
+
+LANGKAH EKSEKUSI:
+1. Setup project Laravel 11 dengan database MySQL / PostgreSQL.
+2. Install Filament v3 Panel: php artisan filament:install --panels.
+3. Install package pendukung: spatie/laravel-permission, bezhansalleh/filament-shield, spatie/laravel-activitylog.
+4. Jalankan php artisan shield:install.
+5. Modifikasi migrasi tabel users dengan kolom:
+   - nip (string, nullable)
+   - role (enum: 'superadmin', 'admin_kecamatan', 'kasi', 'camat')
+   - jabatan (string, nullable)
+   - unit_organisasi_id (unsignedBigInteger, nullable)
+   - is_active (boolean, default true)
+6. Buat UserSeeder dengan data akun resmi Kecamatan Malangbong:
+   - Superadmin: superadmin@malangbong.go.id (Role: superadmin)
+   - Sekmat / Admin: sekmat@malangbong.go.id (Role: admin_kecamatan, Jabatan: 'Sekretaris Camat')
+   - Camat / Pimpinan: camat@malangbong.go.id (Role: camat, Jabatan: 'Plt. Camat Malangbong', NIP: '19700523199303 1 005')
+   - Kasi Pelayanan: kasi.pelayanan@malangbong.go.id (Role: kasi, Jabatan: 'Kepala Seksi Pelayanan', NIP: '19801214201410 2 002')
+   - Kasi Pemerintahan: kasi.pemerintahan@malangbong.go.id (Role: kasi, Jabatan: 'Kepala Seksi Pemerintahan')
+   - Password default: Password123!
+7. Buat UserResource di Filament dengan konfigurasi form reaktif: field unit_organisasi_id hanya tampil dan wajib diisi jika role = kasi.
+8. Pastikan seluruh akun dapat login ke panel /admin.
+
+JANGAN LAKUKAN DI FASE INI:
+- Jangan membuat tabel transaksi laporan atau indikator dulu.</code></pre>
+</div>
+
+<!-- FASE 2 -->
+<div class="ai-box">
+  <div class="ai-box-title">🚀 FASE 2 — Master Data Organisasi &amp; Instrumen Kinerja Camat</div>
+  <p><strong>Tujuan:</strong> CRUD 7 Unit Organisasi, Master Sasaran Strategis Perjanjian Kinerja Camat, dan Master Rencana Aksi.</p>
+  <pre><code>KONTEKS:
+Fase 2 dari 5 — Mengelola data master 7 unit organisasi operasional dan master instrumen kinerja tahunan (Sasaran Strategis &amp; Rencana Aksi) berdasarkan Perjanjian Kinerja Camat Malangbong.
+
+TUJUAN:
+Mempersiapkan seluruh data referensi dan relasi agar modul pengisian laporan di Fase 3 memiliki dasar yang kokoh.
+
+LANGKAH EKSEKUSI:
+1. Buat model &amp; migrasi UnitOrganisasi:
+   - Kolom: id, nama_unit, kode_unit, urutan, wajib_dilaporkan (boolean, default true).
+   - Seeder UnitOrganisasiSeeder dengan 7 unit operasional (Leaf):
+     1. Sub Bag Umum, Perencanaan Evaluasi dan Pelaporan
+     2. Sub Bagian Keuangan dan BMD
+     3. Seksi Pemerintahan
+     4. Seksi Kesejahteraan Masyarakat
+     5. Seksi Pemberdayaan Masyarakat dan Desa
+     6. Seksi Ketentraman dan Ketertiban
+     7. Seksi Pelayanan
+2. Update foreign key pada tabel users.unit_organisasi_id mengarah ke unit_organisasis.id.
+3. Buat model &amp; migrasi SasaranStrategis:
+   - Kolom: id, tahun, uraian_sasaran, indikator_kinerja, target_angka, satuan, program_penunjang.
+   - Seeder contoh Perjanjian Kinerja Camat Malangbong 2026:
+     - Sasaran 1: "Meningkatnya kinerja penyelenggaraan pelayanan publik dan pemerintahan di kewilayahan", Indikator: "Nilai Sinergitas Kinerja Kecamatan", Target: 84.00, Program Penunjang: "Program Penyelenggaraan Pemerintahan dan Pelayanan Publik".
+     - Sasaran 2: "Terwujudnya birokrasi yang bersih, efektif dan efisien", Indikator: "Indeks Reformasi Birokrasi Perangkat Daerah", Target: 82.63.
+4. Buat model &amp; migrasi RencanaAksi:
+   - Kolom: id, unit_organisasi_id (FK), sasaran_strategis_id (FK), uraian_rencana_aksi, indikator_kinerja, target_default, satuan_target.
+   - Seeder contoh untuk Seksi Pelayanan:
+     - Aksi 1: "Menyelenggarakan pelayanan PATEN Kecamatan", Target: 1, Satuan: "Laporan/Bulan".
+     - Aksi 2: "Menyelenggarakan survey kepuasan masyarakat", Target: 1, Satuan: "Dokumen Laporan".
+5. Buat Filament Resource: UnitOrganisasiResource (Superadmin), SasaranStrategisResource (Superadmin &amp; Admin), RencanaAksiResource (Superadmin &amp; Admin).
+6. Tambahkan konfigurasi cut-off global: cutoff_day = 10.
+
+JANGAN LAKUKAN DI FASE INI:
+- Jangan membuat form input laporan bulanan dulu.</code></pre>
+</div>
+
+<!-- FASE 3 -->
+<div class="ai-box">
+  <div class="ai-box-title">🚀 FASE 3 — Formulir Input Kinerja Kasi, Concurrency-Safe Header, &amp; Otomasi Perhitungan</div>
+  <p><strong>Tujuan:</strong> Formulir input capaian terstruktur, sub-tabel dinamis layanan (PATEN), realisasi anggaran, hitung otomatis %, dan atomic header.</p>
+  <pre><code>KONTEKS:
+Fase 3 dari 5 — Membangun formulir input kinerja bulanan untuk Kasi/Kasubag sesuai instrumen Permenpan-RB (Realisasi Kinerja, Sub-tabel Rincian Layanan, dan Realisasi Anggaran).
+
+TUJUAN:
+Kasi dapat menginput capaian bulanan secara komprehensif, aman dari race condition, serta sistem menghitung persentase dan predikat efektivitas-efisiensi secara otomatis.
+
+LANGKAH EKSEKUSI:
+1. Buat model &amp; migrasi:
+   - Laporan (Header bulanan kecamatan, UNIQUE pada bulan_pelaporan).
+   - LaporanDetail (Detail per unit, UNIQUE pada [laporan_id, unit_organisasi_id]).
+   - LaporanDetailIndikator (Capaian kinerja &amp; belanja per rencana aksi).
+   - LaporanDetailLayanan (Rincian pemohon/layanan, misal: 10 item PATEN).
+   - LaporanDokumen (Upload file bukti dukung).
+2. Buat LaporanDetailResource untuk panel Filament:
+   a. Form Wizard / Tabs terstruktur:
+      - Tab 1 (Informasi Umum): Bulan Pelaporan, Unit Organisasi (otomatis dari user login), Latar Belakang (pre-filled template), Keterkaitan Rencana Aksi.
+      - Tab 2 (Capaian Kinerja &amp; Anggaran): Repeater/Table input berdasarkan Rencana Aksi unit:
+        * Input: Target Kinerja, Realisasi Kinerja -> Auto Reactive Hitung persentase_kinerja = (Realisasi / Target) * 100.
+        * Auto Predikat Efektivitas: Sangat Efektif (>100%), Efektif (90-100%), Cukup (60-89%), Tidak Efektif (<60%).
+        * Input: Pagu Anggaran, Realisasi Belanja -> Auto Reactive Hitung persentase_anggaran = (Realisasi / Pagu) * 100.
+        * Auto Predikat Efisiensi: Sangat Efisien (<60%), Efisien (60-90%), Cukup (91-100%), Tidak Efisien (>100%).
+      - Tab 3 (Rincian Layanan / Kegiatan): Repeater dinamis (Nama Layanan/Kegiatan, Jumlah Pemohon, Satuan, Keterangan). Sediakan preset cepat untuk Seksi Pelayanan (SKTM, Ijin Keramaian, Rekomendasi Kredit, Waris, Dispensasi Nikah, Akta Lahir).
+      - Tab 4 (Evaluasi &amp; Hambatan): Textarea Keluhan Masyarakat, Hambatan, Solusi, dan Simpulan.
+      - Tab 5 (Bukti Dukung): Multiple FileUpload (PDF/JPG/PNG, max 10MB per file) disimpan di storage private disk.
+3. Concurrency-Safe Auto-Create Header:
+   - Saat Kasi menyimpan entri pertama, eksekusi dalam DB::transaction() menggunakan:
+     Laporan::firstOrCreate(['bulan_pelaporan' => $bulan->startOfMonth()->toDateString()], ['tahun' => $tahun, 'status' => 'draft']);
+4. Validasi Cut-Off Tanggal 10:
+   - Jika now()->day > 10 untuk bulan sebelumnya, tolak pembuatan/pengubahan data dan set is_late = true, kecuali ada flag dispensasi aktif dari Admin.
+5. Action "Ajukan Laporan Unit":
+   - Mengubah status LaporanDetail dari draft/ditolak menjadi diajukan. Form langsung terkunci (read-only). Kirim notifikasi ke Admin Kecamatan.
+
+JANGAN LAKUKAN DI FASE INI:
+- Jangan membuat modul pengesahan Camat atau generator PDF dulu.</code></pre>
+</div>
+
+<!-- FASE 4 -->
+<div class="ai-box">
+  <div class="ai-box-title">🚀 FASE 4 — Approval Berjenjang (Sekmat &amp; Camat) serta Auto-Generate Dokumen PDF Resmi</div>
+  <p><strong>Tujuan:</strong> Meja verifikasi Sekmat, meja pengesahan Camat, generator PDF resmi ber-kop Pemkab Garut - Kecamatan Malangbong.</p>
+  <pre><code>KONTEKS:
+Fase 4 dari 5 — Mengimplementasikan meja kerja verifikasi Sekmat, meja pengesahan Camat Malangbong, serta otomasi pembuatan dokumen PDF resmi ber-kop surat Pemkab Garut - Kecamatan Malangbong.
+
+TUJUAN:
+Alur bisnis persetujuan tuntas end-to-end dengan dokumen output PDF siap cetak berstandar Permenpan-RB No. 53/2014 &amp; No. 22/2024.
+
+LANGKAH EKSEKUSI:
+1. Meja Kerja Verifikasi Sekmat (VerifikasiLaporanUnitResource):
+   - Menampilkan seluruh pengajuan dari 7 unit.
+   - Action "Setujui": Mengubah status detail menjadi disetujui, catat verified_at dan verified_by.
+   - Action "Kembalikan / Tolak": Modal dialog wajib isi catatan_verifikasi_sekmat. Status detail kembali ke ditolak. Kirim notifikasi ke Kasi terkait.
+   - Action "Buka Dispensasi": Mengizinkan unit tertentu mengedit pasca cut-off tanggal 10.
+2. Meja Pengajuan Gabungan Kecamatan (LaporanKecamatanResource):
+   - Menampilkan status 7 unit wajib.
+   - Tombol "Ajukan ke Camat": Hanya aktif jika SEMUA 7 UNIT WAJIB telah berstatus disetujui. Mengubah status header menjadi diajukan_ke_camat.
+3. Meja Kerja Pengesahan Camat:
+   - Panel khusus Camat untuk mereviu rekapitulasi capaian seluruh seksi.
+   - Action "Sahkan Laporan Kinerja": Mengubah status menjadi disetujui, catat disetujui_pada, generate file PDF final.
+   - Action "Kembalikan ke Sekmat": Modal dialog alasan penolakan, status header kembali ditolak.
+4. Generator PDF Resmi (barryvdh/laravel-dompdf):
+   - Buat Blade view pdf.laporan-kinerja-resmi dengan tata letak:
+     * Halaman Judul (Cover): Judul Laporan Kinerja Bulan [Bulan] [Tahun], Nama Unit/Kecamatan Malangbong.
+     * Kop Surat Resmi: Logo Pemkab Garut, Alamat Jl. Raya Malangbong-Wado No. 16, Email malangbong320514@gmail.com.
+     * Bagian A s.d F lengkap beserta tabel efektivitas dan efisiensi.
+     * Lembar Pengesahan: Tanda tangan Kepala Seksi Pengampu dan Mengetahui Plt. Camat Malangbong (H. Robiul Awaludin, S.Sos., A.Kp., MM - NIP. 19700523199303 1 005) disertai barcode/QR-code verifikasi digital.
+5. Catat setiap perpindahan status ke dalam activity_log (Spatie Activity Log).
+
+JANGAN LAKUKAN DI FASE INI:
+- Jangan membuat widget analitik dashboard dulu.</code></pre>
+</div>
+
+<!-- FASE 5 -->
+<div class="ai-box">
+  <div class="ai-box-title">🚀 FASE 5 — Dashboard Analitik Eksekutif, Ekspor Excel/PDF, &amp; Fitur Notifikasi</div>
+  <p><strong>Tujuan:</strong> Widget visualisasi per role, ekspor Excel rekap data PATEN dan serapan belanja, pengingat deadline cut-off via artisan command.</p>
+  <pre><code>KONTEKS:
+Fase 5 dari 5 — Menyempurnakan antarmuka dengan dashboard analitik eksekutif, ekspor data multi-format, pengingat cut-off, dan audit trail lengkap.
+
+TUJUAN:
+Sistem memiliki visualisasi data yang informatif bagi Camat, Sekmat, dan Kasi, serta siap digunakan secara operasional penuh (Production Ready).
+
+LANGKAH EKSEKUSI:
+1. Widget Dashboard per Role:
+   - kasi: Kartu status laporan unit bulan berjalan (Draft/Diajukan/Disetujui), hitung mundur batas cut-off tanggal 10.
+   - admin_kecamatan (Sekmat):
+     * Indikator progress: "X dari 7 Unit Sudah Disetujui".
+     * Tabel unit yang belum mengisi / belum disetujui.
+     * Grafik tren efektivitas dan serapan anggaran per seksi.
+   - camat:
+     * Executive Summary Card: Rata-rata persentase efektivitas kecamatan &amp; total realisasi belanja bulan berjalan.
+     * Status pengesahan laporan bulanan.
+2. Filter Periode Fleksibel: Dropdown pilihan Tahun &amp; Bulan di dashboard dan seluruh tabel data.
+3. Modul Ekspor Data:
+   - Ekspor Excel (maatwebsite/excel): Rekap bulanan seluruh data rincian pemohon (PATEN), tabel indikator kinerja, dan serapan anggaran seluruh seksi.
+   - Download Dokumen PDF Resmi per unit maupun kompilasi kecamatan.
+4. Scheduled Task (Pengingat Cut-Off Otomatis):
+   - Buat artisan command spko:check-deadline via cron harian.
+   - Kirim notifikasi H-3 dan H-1 (tanggal 7 dan 9) ke seluruh Kasi yang belum mengajukan laporan.
+5. Security &amp; Permission Audit:
+   - Row-level security: Kasi A tidak bisa mengintip draf Kasi B via URL manipulasi (Policy 403 Forbidden).
+   - Sanitasi nama file dan proteksi direct download file lampiran.
+
+PENGUJIAN AKHIR:
+- Uji alur lengkap dari input Kasi Pelayanan (88 pemohon) -> Verifikasi Sekmat -> Pengesahan Camat -> Generate PDF resmi.</code></pre>
+</div>
+
+<hr>
+<p><em>Dokumen ini dipelihara secara otomatis oleh Jarvis AI Senior Systems Analyst untuk Mr Zeps.</em></p>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+# PROJECT STRUCTURE & NAVIGATION MAP
+**Project:** Sistem Pelaporan Kinerja Organisasi (SPKO) - Kecamatan Malangbong  
+**Tech Stack:** Laravel 11 + Filament v3 (PHP 8.2+, MySQL/PostgreSQL)  
+**Main Reference:** `CATATAN_PENGEMBANGAN_SPKO.md` & `Catatan Pengembangan_ Sistem Pelaporan Kinerja Organisasi.html`
+
+## Architecture Overview
+- Single-Tenant internal Kecamatan Malangbong.
+- Roles: `superadmin`, `admin_kecamatan` (Sekmat), `kasi` (7 Unit Operasional), `camat` (Approver Final).
+- Formats: Permenpan-RB No. 53/2014 & No. 22/2024.
+- Cut-off Rule: Tanggal 10 setiap bulan (pukul 23:59 WIB).
+- Architectural Pattern: Controller → Service → Repository → Model (Clean Architecture).
+
+## Key Files & Directories
+- `CATATAN_PENGEMBANGAN_SPKO.md`: Blueprint lengkap dengan instruksi eksekusi AI per fase (Fase 1 - 5).
+- `Catatan Pengembangan_ Sistem Pelaporan Kinerja Organisasi.html`: Versi visual browser interaktif.
+- `.agent/`:
+  - `STRUCTURE.md`: Peta navigasi project saat ini.
+  - `PROJECT_LOG.md`: Timeline kronologis perubahan dan status pengerjaan.
+- `app/`:
+  - `Models/`:
+    - `User.php`: Model User terintegrasi FilamentUser, Spatie HasRoles, dan relasi `unitOrganisasi`, `laporanDetails`.
+    - `UnitOrganisasi.php`: Master 7 unit operasional (Leaf nodes) Kecamatan Malangbong.
+    - `SasaranStrategis.php`: Instrumen Perjanjian Kinerja (PK) tahunan Camat Malangbong.
+    - `RencanaAksi.php`: Rencana aksi unit operasional turunan dari sasaran strategis.
+    - `Laporan.php`: Header bulanan kompilasi kecamatan (Unique: `bulan_pelaporan`).
+    - `LaporanDetail.php`: Detail pelaporan per unit organisasi operasional (Unique: `[laporan_id, unit_organisasi_id]`).
+    - `LaporanDetailIndikator.php`: Capaian fisik & serapan anggaran per rencana aksi beserta otomasi efektivitas & efisiensi.
+    - `LaporanDetailLayanan.php`: Sub-tabel rincian layanan / pemohon (termasuk preset 10 layanan PATEN).
+    - `LaporanDokumen.php`: Lampiran dokumen bukti dukung fisik/kegiatan.
+  - `Repositories/`:
+    - `LaporanRepository.php`: Abstraksi kueri database untuk laporan bulanan, detail unit, progres 7 unit wajib, dan statistik kinerja kecamatan.
+  - `Services/`:
+    - `LaporanApprovalService.php`: Logika bisnis persetujuan berjenjang: verifikasi Sekmat (setujui/kembalikan), dispensasi cut-off, pengajuan gabungan ke Camat, dan pengesahan resmi Camat beserta audit log & notifikasi.
+    - `LaporanPdfService.php`: Generator dokumen PDF resmi ber-kop surat Pemkab Garut - Kecamatan Malangbong berstandar Permenpan-RB dilengkapi barcode/QR-code verifikasi tanda tangan digital.
+  - `Http/Controllers/`:
+    - `LaporanPdfController.php`: Controller streaming dan pengunduhan berkas PDF resmi per unit dan rekapitulasi kompilasi kecamatan dengan validasi otorisasi.
+    - `LaporanExportController.php`: Controller streaming dan pengunduhan berkas Excel multi-sheet (.xlsx) untuk rekap kecamatan dan unit perorangan.
+    - `LaporanDokumenController.php`: Controller pengunduhan berkas bukti dukung fisik dengan sanitasi nama berkas dan proteksi Row-Level Security.
+  - `Policies/`:
+    - `LaporanDetailPolicy.php`: Row-Level Security Policy untuk isolasi unit Kasi, hak delegasi Sekmat, dan validasi form lock pasca submit/cut-off.
+    - `LaporanPolicy.php`: Otorisasi header bulanan kecamatan (Superadmin, Sekmat, Camat).
+  - `Exports/`:
+    - `LaporanKinerjaExport.php`: Master multi-sheet Excel export generator (WithMultipleSheets).
+    - `Sheets/IndikatorKinerjaSheet.php`: Lembar kerja capaian fisik indikator rencana aksi & realisasi belanja anggaran.
+    - `Sheets/RincianLayananSheet.php`: Lembar kerja sub-tabel pemohon layanan (PATEN & kegiatan operasional).
+    - `Sheets/RekapitulasiUnitSheet.php`: Lembar kerja kepatuhan pelaporan, status cut-off, dan verifikasi 7 unit.
+  - `Console/Commands/`:
+    - `CheckSpkoDeadlineCommand.php`: Artisan command `spko:check-deadline` untuk pengingat cut-off otomatis H-3 (tgl 7) dan H-1 (tgl 9).
+  - `Providers/`:
+    - `Filament/AdminPanelProvider.php`: Panel Admin Filament v3 dengan plugin FilamentShield, database notifications, dan custom dashboard.
+    - `AppServiceProvider.php`: Superadmin authorization Gate::before bypass.
+  - `Filament/Pages/`:
+    - `Dashboard.php`: Dashboard akuntabilitas SPKO kustom dengan filter interaktif periode Tahun dan Bulan (HasFiltersForm).
+  - `Filament/Widgets/`:
+    - `KasiStatusWidget.php`: Widget status laporan bulanan unit Kasi, countdown cut-off tanggal 10, dan ringkasan capaian fisik/anggaran.
+    - `SekmatProgressWidget.php`: Widget progres kelengkapan 7 unit wajib, antrean telaah verifikasi Sekmat, status cut-off, dan total serapan belanja kecamatan.
+    - `SekmatUnitStatusTableWidget.php`: Tabel monitoring real-time kepatuhan 7 unit operasional (status draf, capaian fisik, belanja, cut-off, link telaah).
+    - `CamatSummaryWidget.php`: Executive summary card Camat (rata-rata efektivitas kinerja %, serapan belanja Rp & %, status pengesahan kompilasi).
+    - `KecamatanPerformanceChartWidget.php`: Grafik batang komparatif capaian fisik (%) vs serapan anggaran (%) seluruh seksi kecamatan.
+  - `Filament/Resources/`:
+    - `UserResource.php`: Manajemen user dengan form reaktif role-unit dan relasi dinamis.
+    - `UnitOrganisasiResource.php`: Manajemen 7 unit operasional (Akses: Superadmin).
+    - `SasaranStrategisResource.php`: Master sasaran strategis Camat (Akses: Superadmin & Sekmat).
+    - `RencanaAksiResource.php`: Master rencana aksi unit (Akses: Superadmin & Sekmat).
+    - `LaporanDetailResource.php`: Meja kerja penginputan kinerja Kasi (Wizard 5 tab, formula reaktif, preset PATEN, sanitasi upload, filter tahun/bulan, dan aksi unduh PDF/Excel).
+    - `VerifikasiLaporanUnitResource.php`: Meja kerja verifikasi Sekmat (Akses: Sekmat & Superadmin). Aksi: Setujui, Kembalikan/Revisi (wajib catatan), Buka Dispensasi, filter tahun/bulan, dan Unduh PDF/Excel.
+    - `LaporanKecamatanResource.php`: Meja pengajuan gabungan dan pengesahan Camat (Akses: Sekmat, Camat, Superadmin). Aksi: Ajukan ke Camat (hanya aktif jika 7 unit disetujui), Sahkan Laporan (Camat), Kembalikan ke Sekmat (Camat), filter tahun/bulan, Atur Cut-Off, Buka/Kunci Akses Cepat, dan Unduh Rekap PDF/Excel Resmi.
+    - `JadwalCutoffResource.php`: Pusat kendali jadwal cut-off bulanan (Akses: Sekmat & Superadmin). Buka/tutup pengisian kapan saja, custom tanggal cut-off, notifikasi Kasi, dan reset otomatis.
+- `resources/views/`:
+  - `pdf/laporan-kinerja-resmi.blade.php`: Template dokumen cetak PDF resmi berstandar Permenpan-RB 53/2014 & 22/2024, kop dinas Pemkab Garut - Malangbong, tabel efektivitas-efisiensi, dan QR code sertifikat verifikasi digital.
+- `config/`:
+  - `spko.php`: Konfigurasi cut-off global (`cutoff_day = 10`) dan metadata instansi.
+  - `filament-shield.php`: Konfigurasi Filament Shield RBAC.
+  - `permission.php`: Konfigurasi Spatie Permission.
+  - `activitylog.php`: Konfigurasi Spatie Activity Log.
+- `database/`:
+  - `migrations/`:
+    - `0001_01_01_000000_create_users_table.php`: Skema tabel users.
+    - `2026_09_26_014914_create_notifications_table.php`: Skema tabel notifikasi database.
+    - `2026_09_26_020001_create_unit_organisasis_table.php`: Skema master unit kerja.
+    - `2026_09_26_020002_add_foreign_key_to_users_unit_organisasi_id.php`: Constraint FK users ke unit_organisasis.
+    - `2026_09_26_020003_create_sasaran_strategis_table.php`: Skema perjanjian kinerja Camat.
+    - `2026_09_26_020004_create_rencana_aksis_table.php`: Skema rencana aksi unit operasional.
+    - `2026_09_26_030001_create_laporans_table.php`: Skema tabel header laporan bulanan kecamatan.
+    - `2026_09_26_030002_create_laporan_details_table.php`: Skema tabel detail laporan unit kerja.
+    - `2026_09_26_030003_create_laporan_detail_indikators_table.php`: Skema tabel capaian indikator & anggaran belanja.
+    - `2026_09_26_030004_create_laporan_detail_layanans_table.php`: Skema sub-tabel rincian layanan pemohon.
+    - `2026_09_26_030005_create_laporan_dokumens_table.php`: Skema dokumen bukti dukung.
+    - `2026_09_26_040001_add_verified_by_to_laporan_details_table.php`: Penambahan kolom `verified_by` pada `laporan_details`.
+    - `2026_09_26_050001_add_custom_cutoff_fields_to_laporans_table.php`: Penambahan kolom cut-off custom dan status kontrol akses pada `laporans`.
+  - `seeders/`:
+    - `UnitOrganisasiSeeder.php`: Seeder 7 unit operasional (2 Subbag + 5 Seksi).
+    - `UserSeeder.php`: Seeder akun resmi & Spatie role mapping.
+    - `SasaranStrategisSeeder.php`: Seeder instrumen PK Camat 2026.
+    - `RencanaAksiSeeder.php`: Seeder rencana aksi 7 unit kerja (termasuk PATEN & SKM).
+    - `DummyDataSeeder.php`: Seeder data realistis multi-periode (Agustus disahkan Camat 88 pemohon, September real-time multi-status, Juli historis).
+    - `DatabaseSeeder.php`: Master seeder orkestrasi seeder berurutan.
+- `tests/`:
+  - `tests/Feature/AdminAuthTest.php`: Suite pengujian login, RBAC, dan UserResource.
+  - `tests/Feature/MasterDataTest.php`: Suite pengujian master unit, sasaran, rencana aksi, cut-off, dan hak akses.
+  - `tests/Feature/LaporanKinerjaTest.php`: Suite pengujian formulir laporan unit, kalkulasi otomatis efektivitas/efisiensi, preset PATEN, validasi cut-off/dispensasi, pengajuan dan notifikasi, serta isolasi data Kasi (RLS).
+  - `tests/Feature/LaporanApprovalAndPdfTest.php`: Suite pengujian verifikasi Sekmat, penolakan revisi, dispensasi cut-off, validasi pengajuan 7 unit lengkap ke Camat, pengesahan resmi Camat, generator PDF Permenpan-RB & QR code, otorisasi unduh, dan pengujian Livewire table action.
+  - `tests/Feature/DashboardAndExportTest.php`: Suite pengujian dashboard per role, filter tahun/bulan, scheduled task deadline cut-off, multi-sheet Excel export, proteksi unduh lampiran, dan simulasi alur end-to-end 88 pemohon hingga pengesahan Camat.
+  - `tests/Feature/CustomCutoffTest.php`: Suite pengujian jadwal & cut-off dinamis (buka bebas, kunci manual, custom datetime).
+  - `tests/Feature/DummyDataSeederTest.php`: Suite pengujian validasi integritas dummy data seeder 3 periode dan komputasi grafik analitik.
+
+
