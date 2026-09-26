@@ -12,7 +12,7 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    protected static ?string $title = 'Dashboard Akuntabilitas SPKO';
+    protected static ?string $title = 'Dashboard Akuntabilitas SI-PELAJAR';
 
     protected static ?string $navigationLabel = 'Dashboard Utama';
 

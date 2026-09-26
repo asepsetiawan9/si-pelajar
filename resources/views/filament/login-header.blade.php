@@ -9,6 +9,6 @@
         Kecamatan Malangbong
     </h1>
     <div class="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300">
-        Sistem Pelaporan Kinerja Organisasi (SPKO)
+        Sistem Informasi Pelaporan Kinerja (SI-PELAJAR)
     </div>
 </div>

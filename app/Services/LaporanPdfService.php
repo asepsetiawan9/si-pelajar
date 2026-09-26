@@ -180,13 +180,13 @@ class LaporanPdfService
         $nipSekmat = $sekmatUser?->nip ?? '19750810200003 1 002';
 
         // QR Code Payload
-        $hashSekmat = hash('sha256', "SPKO_SEKMAT_{$detail->id}_{$detail->verified_at}");
-        $qrPayloadSekmat = "SPKO KECAMATAN MALANGBONG\nVerifikasi: SEKRETARIS CAMAT\nUnit: {$namaUnit}\nPeriode: {$periodeBulan}\nVerifikator: {$namaSekmat}\nTanggal: ".($detail->verified_at?->format('d/m/Y H:i') ?? 'N/A')."\nToken: ".substr($hashSekmat, 0, 16);
+        $hashSekmat = hash('sha256', "SI_PELAJAR_SEKMAT_{$detail->id}_{$detail->verified_at}");
+        $qrPayloadSekmat = "SI-PELAJAR KECAMATAN MALANGBONG\nVerifikasi: SEKRETARIS CAMAT\nUnit: {$namaUnit}\nPeriode: {$periodeBulan}\nVerifikator: {$namaSekmat}\nTanggal: ".($detail->verified_at?->format('d/m/Y H:i') ?? 'N/A')."\nToken: ".substr($hashSekmat, 0, 16);
         $qrCodeSekmat = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadSekmat));
 
-        $hashCamat = hash('sha256', "SPKO_CAMAT_{$detail->id}_{$detail->laporan?->disetujui_pada}");
+        $hashCamat = hash('sha256', "SI_PELAJAR_CAMAT_{$detail->id}_{$detail->laporan?->disetujui_pada}");
         $camatNama = config('spko.instansi.camat_nama');
-        $qrPayloadCamat = "SPKO KECAMATAN MALANGBONG\nPengesahan: CAMAT MALANGBONG\nPejabat: {$camatNama}\nUnit: {$namaUnit}\nPeriode: {$periodeBulan}\nTanggal: ".($detail->laporan?->disetujui_pada?->format('d/m/Y H:i') ?? date('d/m/Y H:i'))."\nToken: ".substr($hashCamat, 0, 16);
+        $qrPayloadCamat = "SI-PELAJAR KECAMATAN MALANGBONG\nPengesahan: CAMAT MALANGBONG\nPejabat: {$camatNama}\nUnit: {$namaUnit}\nPeriode: {$periodeBulan}\nTanggal: ".($detail->laporan?->disetujui_pada?->format('d/m/Y H:i') ?? date('d/m/Y H:i'))."\nToken: ".substr($hashCamat, 0, 16);
         $qrCodeCamat = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadCamat));
 
         $tanggalPengesahan = $detail->laporan?->disetujui_pada
@@ -273,13 +273,13 @@ class LaporanPdfService
         $namaSekmat = $sekmatUser?->name ?? 'Sekretaris Camat Malangbong';
         $nipSekmat = $sekmatUser?->nip ?? '19750810200003 1 002';
 
-        $hashSekmat = hash('sha256', "SPKO_KECAMATAN_SEKMAT_{$laporan->id}_{$laporan->updated_at}");
-        $qrPayloadSekmat = "SPKO KECAMATAN MALANGBONG\nPengajuan: SEKRETARIS CAMAT\nLingkup: 7 Unit Kerja Operasional\nPeriode: {$periodeBulan}\nVerifikator: {$namaSekmat}\nToken: ".substr($hashSekmat, 0, 16);
+        $hashSekmat = hash('sha256', "SI_PELAJAR_KECAMATAN_SEKMAT_{$laporan->id}_{$laporan->updated_at}");
+        $qrPayloadSekmat = "SI-PELAJAR KECAMATAN MALANGBONG\nPengajuan: SEKRETARIS CAMAT\nLingkup: 7 Unit Kerja Operasional\nPeriode: {$periodeBulan}\nVerifikator: {$namaSekmat}\nToken: ".substr($hashSekmat, 0, 16);
         $qrCodeSekmat = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadSekmat));
 
-        $hashCamat = hash('sha256', "SPKO_KECAMATAN_CAMAT_{$laporan->id}_{$laporan->disetujui_pada}");
+        $hashCamat = hash('sha256', "SI_PELAJAR_KECAMATAN_CAMAT_{$laporan->id}_{$laporan->disetujui_pada}");
         $camatNama = config('spko.instansi.camat_nama');
-        $qrPayloadCamat = "SPKO KECAMATAN MALANGBONG\nPengesahan: CAMAT MALANGBONG\nPejabat: {$camatNama}\nLingkup: 7 Unit Kerja Operasional\nPeriode: {$periodeBulan}\nTanggal: ".($laporan->disetujui_pada?->format('d/m/Y H:i') ?? date('d/m/Y H:i'))."\nToken: ".substr($hashCamat, 0, 16);
+        $qrPayloadCamat = "SI-PELAJAR KECAMATAN MALANGBONG\nPengesahan: CAMAT MALANGBONG\nPejabat: {$camatNama}\nLingkup: 7 Unit Kerja Operasional\nPeriode: {$periodeBulan}\nTanggal: ".($laporan->disetujui_pada?->format('d/m/Y H:i') ?? date('d/m/Y H:i'))."\nToken: ".substr($hashCamat, 0, 16);
         $qrCodeCamat = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadCamat));
 
         $tanggalPengesahan = $laporan->disetujui_pada
@@ -334,12 +334,12 @@ class LaporanPdfService
         $namaSekmat = $sekmatUser?->name ?? 'Sekretaris Camat Malangbong';
         $nipSekmat = $sekmatUser?->nip ?? '19750810200003 1 002';
 
-        $hashSekmat = hash('sha256', "SPKO_V2_SEKMAT_{$record->id}_{$record->verified_at}");
-        $qrPayloadSekmat = "SPKO KECAMATAN MALANGBONG\nVerifikasi: SEKRETARIS CAMAT\nUnit: {$record->unitOrganisasi?->nama_unit}\nAgenda: {$record->judul_pelaporan}\nPeriode: {$record->nama_bulan} {$record->periode_tahun}\nToken: ".substr($hashSekmat, 0, 16);
+        $hashSekmat = hash('sha256', "SI_PELAJAR_V2_SEKMAT_{$record->id}_{$record->verified_at}");
+        $qrPayloadSekmat = "SI-PELAJAR KECAMATAN MALANGBONG\nVerifikasi: SEKRETARIS CAMAT\nUnit: {$record->unitOrganisasi?->nama_unit}\nAgenda: {$record->judul_pelaporan}\nPeriode: {$record->nama_bulan} {$record->periode_tahun}\nToken: ".substr($hashSekmat, 0, 16);
         $qrCodeSekmat = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadSekmat));
 
-        $hashPelapor = hash('sha256', "SPKO_V2_PELAPOR_{$record->id}_{$record->submitted_at}");
-        $qrPayloadPelapor = "SPKO KECAMATAN MALANGBONG\nPejabat Pelapor: {$record->nama_pejabat}\nNIP: {$record->nip_pejabat}\nUnit: {$record->unitOrganisasi?->nama_unit}\nTanggal: ".($record->tanggal_pelaporan?->format('d/m/Y') ?? date('d/m/Y'))."\nToken: ".substr($hashPelapor, 0, 16);
+        $hashPelapor = hash('sha256', "SI_PELAJAR_V2_PELAPOR_{$record->id}_{$record->submitted_at}");
+        $qrPayloadPelapor = "SI-PELAJAR KECAMATAN MALANGBONG\nPejabat Pelapor: {$record->nama_pejabat}\nNIP: {$record->nip_pejabat}\nUnit: {$record->unitOrganisasi?->nama_unit}\nTanggal: ".($record->tanggal_pelaporan?->format('d/m/Y') ?? date('d/m/Y'))."\nToken: ".substr($hashPelapor, 0, 16);
         $qrCodePelapor = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadPelapor));
 
         $tanggalPengesahan = $record->verified_at

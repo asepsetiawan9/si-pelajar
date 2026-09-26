@@ -100,8 +100,8 @@ class CheckSpkoDeadlineCommand extends Command
             };
 
             $urgencyTitle = $isH1
-                ? "⚠️ PERINGATAN H-1: Batas Waktu Pelaporan SPKO ({$unit->nama_unit})"
-                : "⏳ PENGINGAT H-3: Batas Waktu Pelaporan SPKO ({$unit->nama_unit})";
+                ? "⚠️ PERINGATAN H-1: Batas Waktu Pelaporan SI-PELAJAR ({$unit->nama_unit})"
+                : "⏳ PENGINGAT H-3: Batas Waktu Pelaporan SI-PELAJAR ({$unit->nama_unit})";
 
             $urgencyBody = "Laporan kinerja unit Anda untuk periode {$targetMonthName} {$statusText}. Batas pengajuan adalah {$deadlineString}. Mohon segera lengkapi dan ajukan.";
 

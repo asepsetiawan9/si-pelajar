@@ -461,7 +461,7 @@
                 <br><br>
                 <div class="qr-box">
                     <img src="data:image/svg+xml;base64,{{ $qrCodeSekmat }}" width="85" height="85" alt="QR Verifikasi Sekmat">
-                    <div class="qr-caption">TERVERIFIKASI SISTEM SPKO</div>
+                    <div class="qr-caption">TERVERIFIKASI SISTEM SI-PELAJAR</div>
                 </div>
                 <br>
                 <strong><u>{{ $namaSekmat }}</u></strong><br>
@@ -484,7 +484,7 @@
     </table>
 
     <div class="legal-notice">
-        <strong>Catatan Keabsahan Dokumen Elektronik:</strong> Dokumen ini merupakan dokumen resmi akuntabilitas kinerja yang sah dan dicetak secara otomatis melalui Sistem Pelaporan Kinerja Organisasi (SPKO) Kecamatan Malangbong. Tanda tangan elektronik dibuktikan dengan kode QR terenkripsi yang dapat dipindai untuk memverifikasi keaslian pengesahan pejabat yang berwenang.
+        <strong>Catatan Keabsahan Dokumen Elektronik:</strong> Dokumen ini merupakan dokumen resmi akuntabilitas kinerja yang sah dan dicetak secara otomatis melalui Sistem Informasi Pelaporan Kinerja (SI-PELAJAR) Kecamatan Malangbong. Tanda tangan elektronik dibuktikan dengan kode QR terenkripsi yang dapat dipindai untuk memverifikasi keaslian pengesahan pejabat yang berwenang.
     </div>
 
 </body>

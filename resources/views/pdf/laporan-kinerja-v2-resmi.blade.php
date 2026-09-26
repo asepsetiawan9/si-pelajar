@@ -231,7 +231,7 @@
     {{-- JUDUL DOKUMEN --}}
     <div class="doc-title">
         <h1>LAPORAN KINERJA UNIT KERJA</h1>
-        <p>Nomor Registrasi: SPKO/V2/{{ $record->periode_tahun }}/{{ str_pad($record->periode_bulan, 2, '0', STR_PAD_LEFT) }}/{{ str_pad($record->id, 4, '0', STR_PAD_LEFT) }}</p>
+        <p>Nomor Registrasi: SI-PELAJAR/V2/{{ $record->periode_tahun }}/{{ str_pad($record->periode_bulan, 2, '0', STR_PAD_LEFT) }}/{{ str_pad($record->id, 4, '0', STR_PAD_LEFT) }}</p>
     </div>
 
     {{-- I. INFORMASI PELAPORAN --}}
@@ -353,7 +353,7 @@
                 <br><br>
                 <div class="qr-box">
                     <img src="data:image/svg+xml;base64,{{ $qrCodeSekmat }}" width="80" height="80" alt="QR Verifikasi Sekmat">
-                    <div class="qr-caption">TERVERIFIKASI SPKO</div>
+                    <div class="qr-caption">TERVERIFIKASI SI-PELAJAR</div>
                 </div>
                 <br>
                 <strong><u>{{ $namaSekmat }}</u></strong><br>
@@ -376,7 +376,7 @@
     </table>
 
     <div class="legal-notice">
-        <strong>Catatan Keabsahan Dokumen Elektronik:</strong> Dokumen ini merupakan berkas resmi Laporan Kinerja Unit Kerja yang diterbitkan dan diverifikasi secara elektronik melalui Sistem Pelaporan Kinerja Organisasi (SPKO) Pemerintah Kabupaten Garut - Kecamatan Malangbong. Keabsahan pengesahan dan integritas dokumen dijamin dengan kode verifikasi QR terenkripsi sesuai ketentuan peraturan perundang-undangan.
+        <strong>Catatan Keabsahan Dokumen Elektronik:</strong> Dokumen ini merupakan berkas resmi Laporan Kinerja Unit Kerja yang diterbitkan dan diverifikasi secara elektronik melalui Sistem Informasi Pelaporan Kinerja (SI-PELAJAR) Pemerintah Kabupaten Garut - Kecamatan Malangbong. Keabsahan pengesahan dan integritas dokumen dijamin dengan kode verifikasi QR terenkripsi sesuai ketentuan peraturan perundang-undangan.
     </div>
 
 </body>

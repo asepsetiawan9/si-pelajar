@@ -1,5 +1,5 @@
 # PROJECT STRUCTURE & NAVIGATION MAP
-**Project:** Sistem Pelaporan Kinerja Organisasi (SPKO) - Kecamatan Malangbong  
+**Project:** Sistem Informasi Pelaporan Kinerja (SI-PELAJAR) - Kecamatan Malangbong  
 **Tech Stack:** Laravel 11 + Filament v3 (PHP 8.2+, MySQL/PostgreSQL)  
 **Main Reference:** `CATATAN_PENGEMBANGAN_SPKO.md` & `Catatan Pengembangan_ Sistem Pelaporan Kinerja Organisasi.html`
 

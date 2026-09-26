@@ -762,9 +762,40 @@
 - Integritas analisis statis IDE bersih tanpa warning.
 - Pemformatan tanggal kebal terhadap variasi tipe data (string vs Carbon instance).
 
+---
+
+## 2026-09-26 - Perubahan Nama Aplikasi Menjadi SI-PELAJAR & Deployment Git/VPS
+
+### Apa (What):
+1. **Perubahan Branding & Identitas Aplikasi**:
+   - Memperbarui nama aplikasi menjadi **SI-PELAJAR** (Sistem Informasi Pelaporan Kinerja) pada:
+     * `.env` & `.env.example`: `APP_NAME="SI-PELAJAR"`
+     * `config/app.php`: Default fallback name set to `'SI-PELAJAR'`
+     * `app/Providers/Filament/AdminPanelProvider.php`: Brand name updated to `'SI-PELAJAR Kec. Malangbong'`
+     * `resources/views/filament/brand-logo.blade.php`: Header logo text updated to `SI-PELAJAR Malangbong`
+     * `resources/views/filament/login-header.blade.php`: Subtitle updated to `Sistem Informasi Pelaporan Kinerja (SI-PELAJAR)`
+     * `app/Filament/Pages/Dashboard.php`: Judul dashboard updated to `'Dashboard Akuntabilitas SI-PELAJAR'`
+     * `resources/views/pdf/laporan-kinerja-resmi.blade.php` & `laporan-kinerja-v2-resmi.blade.php`: Template nomor registrasi, QR verification caption (`TERVERIFIKASI SI-PELAJAR`), dan klausul keabsahan elektronik.
+     * `app/Services/LaporanPdfService.php`: Format payload QR code dan token enkripsi.
+     * `app/Http/Controllers/LaporanExportController.php`: Prefix nama berkas ekspor Excel (`SI-PELAJAR-*.xlsx`).
+     * `app/Console/Commands/CheckSpkoDeadlineCommand.php`: Urgency notification title.
+2. **Quality Assurance**:
+   - Seluruh automated feature tests berjalan sukses: **64 passed (333 assertions)**, 100% green.
+3. **Sinkronisasi Git & Deployment ke VPS**:
+   - Commit dan push perubahan ke GitHub remote repository: `asepsetiawan9/si-pelajar.git` (branch `versi-2` dan `main`).
+   - Transfer berkas dan update kode ke server VPS produksi (`36.64.200.242:2020` - `/var/www/pkp-malangbong`).
+   - Refresh konfigurasi & cache Laravel di server VPS (`config:cache`, `route:cache`, `view:cache`, `filament:cache-components`).
+
+### Kenapa (Why):
+- Permintaan Mr Zeps untuk mengubah nama aplikasi menjadi `si-pelajar` serta mempublikasikan pembaruan ke Git repository dan VPS server.
+
+### Dampak (Impact):
+- Identitas sistem di seluruh panel admin Filament, halaman login, kop dokumen resmi PDF, serta ekspor Excel kini seragam menggunakan identitas resmi **SI-PELAJAR**.
+- Git repository tersinkronisasi penuh dan instance VPS ter-update secara seamless tanpa downtime.
+
 ### Pending / Blockers:
-- **Blockers**: Tidak ada (Zero Blockers).
-- **Status**: 100% Selesai & Production Ready.
+- **Blockers**: Nihil (Zero Blockers).
+- **Status**: Production Ready.
 
 
 
