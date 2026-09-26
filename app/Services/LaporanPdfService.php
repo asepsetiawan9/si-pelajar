@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Models\Laporan;
 use App\Models\LaporanDetail;
+use App\Models\LaporanKinerjaV2;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class LaporanPdfService
@@ -302,6 +304,56 @@ class LaporanPdfService
             'qrCodeCamat' => $qrCodeCamat,
             'tanggalPengesahan' => $tanggalPengesahan,
             'showCover' => true,
+            'logoBase64' => $this->getLogoBase64(),
+        ];
+    }
+
+    /**
+     * Download / stream file PDF resmi Laporan Kinerja Unit V2.
+     */
+    public function downloadLaporanV2Pdf(LaporanKinerjaV2 $record): Response
+    {
+        $record->loadMissing(['unitOrganisasi', 'user', 'verifier']);
+        $data = $this->prepareLaporanV2PdfData($record);
+
+        $pdf = Pdf::loadView('pdf.laporan-kinerja-v2-resmi', $data)
+            ->setPaper('a4', 'portrait');
+
+        $unitSlug = Str::slug($record->unitOrganisasi?->nama_unit ?? 'unit');
+        $filename = "Laporan_Kinerja_V2_{$unitSlug}_{$record->periode_tahun}_{$record->periode_bulan}.pdf";
+
+        return $pdf->stream($filename);
+    }
+
+    /**
+     * Prepare view data untuk PDF Laporan Kinerja Unit V2.
+     */
+    protected function prepareLaporanV2PdfData(LaporanKinerjaV2 $record): array
+    {
+        $sekmatUser = User::where('role', 'admin_kecamatan')->first();
+        $namaSekmat = $sekmatUser?->name ?? 'Sekretaris Camat Malangbong';
+        $nipSekmat = $sekmatUser?->nip ?? '19750810200003 1 002';
+
+        $hashSekmat = hash('sha256', "SPKO_V2_SEKMAT_{$record->id}_{$record->verified_at}");
+        $qrPayloadSekmat = "SPKO KECAMATAN MALANGBONG\nVerifikasi: SEKRETARIS CAMAT\nUnit: {$record->unitOrganisasi?->nama_unit}\nAgenda: {$record->judul_pelaporan}\nPeriode: {$record->nama_bulan} {$record->periode_tahun}\nToken: ".substr($hashSekmat, 0, 16);
+        $qrCodeSekmat = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadSekmat));
+
+        $hashPelapor = hash('sha256', "SPKO_V2_PELAPOR_{$record->id}_{$record->submitted_at}");
+        $qrPayloadPelapor = "SPKO KECAMATAN MALANGBONG\nPejabat Pelapor: {$record->nama_pejabat}\nNIP: {$record->nip_pejabat}\nUnit: {$record->unitOrganisasi?->nama_unit}\nTanggal: ".($record->tanggal_pelaporan?->format('d/m/Y') ?? date('d/m/Y'))."\nToken: ".substr($hashPelapor, 0, 16);
+        $qrCodePelapor = base64_encode(QrCode::format('svg')->size(100)->generate($qrPayloadPelapor));
+
+        $tanggalPengesahan = $record->verified_at
+            ? $record->verified_at->translatedFormat('d F Y')
+            : Carbon::now()->translatedFormat('d F Y');
+
+        return [
+            'judulDokumen' => "Laporan Kinerja - {$record->unitOrganisasi?->nama_unit} ({$record->nama_bulan} {$record->periode_tahun})",
+            'record' => $record,
+            'namaSekmat' => $namaSekmat,
+            'nipSekmat' => $nipSekmat,
+            'qrCodeSekmat' => $qrCodeSekmat,
+            'qrCodePelapor' => $qrCodePelapor,
+            'tanggalPengesahan' => $tanggalPengesahan,
             'logoBase64' => $this->getLogoBase64(),
         ];
     }

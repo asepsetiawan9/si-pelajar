@@ -248,4 +248,62 @@ class LaporanKinerjaV2Test extends TestCase
         $this->get(LaporanKinerjaV2Resource::getUrl('create'))
             ->assertSuccessful();
     }
+
+    public function test_laporan_v2_pdf_download_and_authorization(): void
+    {
+        $laporan = LaporanKinerjaV2::create([
+            'judul_pelaporan' => 'Laporan Pelayanan PDF Test',
+            'periode_bulan' => 9,
+            'periode_tahun' => 2026,
+            'tanggal_pelaporan' => '2026-09-20',
+            'unit_organisasi_id' => $this->unitPelayanan->id,
+            'user_id' => $this->kasiPelayanan->id,
+            'nama_pejabat' => $this->kasiPelayanan->name,
+            'nip_pejabat' => $this->kasiPelayanan->nip,
+            'jabatan_pejabat' => $this->kasiPelayanan->jabatan,
+            'ringkasan_kegiatan' => 'Kegiatan pelayanan PATEN berjalan lancar.',
+            'status' => 'disetujui',
+            'bukti_dukung' => ['test_doc.pdf'],
+        ]);
+
+        // Kasi Pelayanan dapat mengunduh PDF unitnya sendiri
+        $this->actingAs($this->kasiPelayanan);
+        $resSelf = $this->get(route('spko.laporan-v2.pdf', $laporan));
+        $resSelf->assertSuccessful();
+        $this->assertEquals('application/pdf', $resSelf->headers->get('content-type'));
+
+        // Kasi Pemerintahan DITOLAK 403 Forbidden mengunduh PDF unit Pelayanan
+        $this->actingAs($this->kasiPemerintahan);
+        $resOther = $this->get(route('spko.laporan-v2.pdf', $laporan));
+        $resOther->assertForbidden();
+
+        // Sekmat dapat mengunduh seluruh PDF unit
+        $this->actingAs($this->sekmat);
+        $resSekmat = $this->get(route('spko.laporan-v2.pdf', $laporan));
+        $resSekmat->assertSuccessful();
+    }
+
+    public function test_laporan_v2_view_page_renders_with_infolist(): void
+    {
+        $laporan = LaporanKinerjaV2::create([
+            'judul_pelaporan' => 'Laporan Pelayanan View Test',
+            'periode_bulan' => 9,
+            'periode_tahun' => 2026,
+            'tanggal_pelaporan' => '2026-09-20',
+            'unit_organisasi_id' => $this->unitPelayanan->id,
+            'user_id' => $this->kasiPelayanan->id,
+            'nama_pejabat' => $this->kasiPelayanan->name,
+            'nip_pejabat' => $this->kasiPelayanan->nip,
+            'jabatan_pejabat' => $this->kasiPelayanan->jabatan,
+            'ringkasan_kegiatan' => 'Pelayanan PATEN terlaksana 100%.',
+            'status' => 'disetujui',
+            'bukti_dukung' => ['file_contoh.pdf'],
+        ]);
+
+        $this->actingAs($this->kasiPelayanan);
+        $this->get(LaporanKinerjaV2Resource::getUrl('view', ['record' => $laporan]))
+            ->assertSuccessful()
+            ->assertSee('Laporan Pelayanan View Test')
+            ->assertSee('Pelayanan PATEN terlaksana 100%.');
+    }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Widgets\KecamatanPerformanceChartWidget;
 use App\Models\Laporan;
 use Database\Seeders\DummyDataSeeder;
+use Database\Seeders\LaporanKinerjaV2Seeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use ReflectionMethod;
 use Tests\TestCase;
@@ -51,6 +52,8 @@ class DummyDataSeederTest extends TestCase
 
     public function test_chart_widget_renders_data_correctly_with_dummy_data(): void
     {
+        $this->seed(LaporanKinerjaV2Seeder::class);
+
         $widget = new KecamatanPerformanceChartWidget;
         $widget->filters = ['tahun' => 2026, 'bulan' => 8];
 
@@ -63,18 +66,18 @@ class DummyDataSeederTest extends TestCase
         $this->assertCount(7, $data['labels']);
         $this->assertCount(2, $data['datasets']);
 
-        // Data capaian kinerja fisik seluruh unit adalah 100%
-        $kinerjaDataset = $data['datasets'][0];
-        $this->assertEquals('Capaian Kinerja Fisik (%)', $kinerjaDataset['label']);
-        foreach ($kinerjaDataset['data'] as $val) {
-            $this->assertEquals(100.0, $val);
+        // Data berkas bukti dukung 7 unit
+        $berkasDataset = $data['datasets'][0];
+        $this->assertEquals('Berkas Bukti Dukung (Dokumen)', $berkasDataset['label']);
+        foreach ($berkasDataset['data'] as $val) {
+            $this->assertGreaterThan(0, $val);
         }
 
-        // Data serapan anggaran rata-rata > 80%
-        $anggaranDataset = $data['datasets'][1];
-        $this->assertEquals('Serapan Belanja Anggaran (%)', $anggaranDataset['label']);
-        foreach ($anggaranDataset['data'] as $val) {
-            $this->assertGreaterThan(80, $val);
+        // Data laporan/agenda terkirim 7 unit
+        $laporanDataset = $data['datasets'][1];
+        $this->assertEquals('Laporan / Agenda Terkirim', $laporanDataset['label']);
+        foreach ($laporanDataset['data'] as $val) {
+            $this->assertEquals(1, $val);
         }
     }
 }

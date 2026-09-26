@@ -6,7 +6,6 @@ use App\Models\Laporan;
 use App\Models\LaporanDetail;
 use App\Models\LaporanKinerjaV2;
 use App\Models\UnitOrganisasi;
-use App\Repositories\LaporanRepository;
 use Carbon\Carbon;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -33,41 +32,32 @@ class SekmatProgressWidget extends BaseWidget
         $namaBulan = $bulanDate->translatedFormat('F Y');
 
         $mandatoryTotal = UnitOrganisasi::where('wajib_dilaporkan', true)->count();
-        $laporan = Laporan::whereDate('bulan_pelaporan', $bulanDate->toDateString())->first();
 
-        $approvedCount = 0;
-        $submittedCount = 0;
-        $draftCount = 0;
-        $rejectedCount = 0;
+        // Ambil data Laporan V2 untuk periode ini
+        $v2Reports = LaporanKinerjaV2::where('periode_bulan', $bulan)
+            ->where('periode_tahun', $tahun)
+            ->get();
 
-        if ($laporan) {
-            $approvedCount = $laporan->details()->where('status', 'disetujui')->count();
-            $submittedCount = $laporan->details()->where('status', 'diajukan')->count();
-            $draftCount = $laporan->details()->where('status', 'draft')->count();
-            $rejectedCount = $laporan->details()->where('status', 'ditolak')->count();
-        }
-
-        // Laporan V2 yang menunggu telaah
-        $v2Pending = LaporanKinerjaV2::where('status', 'diajukan')->count();
-        $totalAntrean = $submittedCount + $v2Pending;
-
+        $approvedCount = $v2Reports->where('status', 'disetujui')->pluck('unit_organisasi_id')->unique()->count();
+        $submittedCount = $v2Reports->where('status', 'diajukan')->count();
         $allApproved = ($mandatoryTotal > 0 && $approvedCount >= $mandatoryTotal);
 
-        // 1. Stat Progress 7 Unit Wajib
-        $progressText = "{$approvedCount} / {$mandatoryTotal} Unit";
-        $progressDesc = $laporan
-            ? ($allApproved
-                ? 'Seluruh 7 unit telah disetujui (Siap diajukan ke Camat)'
-                : 'Menunggu kelengkapan '.($mandatoryTotal - $approvedCount).' unit lagi')
-            : "Belum ada laporan unit masuk pada periode {$namaBulan}";
+        // 1. Stat Progress Verifikasi 7 Unit Kerja
+        $progressText = "{$approvedCount} / {$mandatoryTotal} Unit Disetujui";
+        $progressDesc = $allApproved
+            ? 'Seluruh 7 unit kerja telah tuntas diverifikasi resmi'
+            : ($v2Reports->isNotEmpty()
+                ? 'Menunggu penyelesaian verifikasi '.($mandatoryTotal - $approvedCount).' unit lagi'
+                : "Belum ada laporan unit masuk untuk {$namaBulan}");
 
         $progressStat = Stat::make('Progres Verifikasi Unit', $progressText)
             ->description($progressDesc)
             ->descriptionIcon($allApproved ? 'heroicon-m-check-badge' : 'heroicon-m-arrow-path')
-            ->color($laporan ? ($allApproved ? 'success' : 'warning') : 'gray')
-            ->chart([1, 2, 3, 4, 5, $approvedCount]);
+            ->color($allApproved ? 'success' : ($approvedCount > 0 ? 'warning' : 'gray'))
+            ->chart([1, 2, 3, 4, 5, max(1, $approvedCount)]);
 
-        // 2. Stat Antrean Menunggu Verifikasi (V1 + V2)
+        // 2. Stat Antrean Menunggu Verifikasi
+        $totalAntrean = LaporanKinerjaV2::where('status', 'diajukan')->count();
         $queueDesc = $totalAntrean > 0
             ? "{$totalAntrean} berkas laporan unit perlu ditelaah Sekmat"
             : 'Tidak ada antrean telaah saat ini (Selesai)';
@@ -79,10 +69,11 @@ class SekmatProgressWidget extends BaseWidget
             ->chart([5, 4, 3, 2, $totalAntrean]);
 
         // 3. Stat Batas Waktu Cut-Off (Dinamis & Custom)
+        $laporanHeader = Laporan::whereDate('bulan_pelaporan', $bulanDate->toDateString())->first();
         $cutoffDate = LaporanDetail::calculateCutoffDate($bulanDate);
         $now = now();
         $isPast = $now->isAfter($cutoffDate);
-        $cutoffStatus = $laporan?->cutoff_status ?? 'otomatis';
+        $cutoffStatus = $laporanHeader?->cutoff_status ?? 'otomatis';
 
         if ($cutoffStatus === 'terbuka') {
             $cutoffStat = Stat::make('Status Cut-Off', 'Dibuka Bebas')
@@ -97,9 +88,8 @@ class SekmatProgressWidget extends BaseWidget
                 ->color('danger')
                 ->chart([10, 8, 6, 4, 2, 0]);
         } elseif ($isPast) {
-            $lateUnits = $laporan ? $laporan->details()->where('is_late', true)->count() : 0;
             $cutoffStat = Stat::make('Status Cut-Off', 'Sudah Berakhir')
-                ->description("Batas akhir terlewati ({$lateUnits} unit terlambat)")
+                ->description('Batas waktu pelaporan tanggal 10 telah lewat')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger')
                 ->chart([6, 5, 4, 3, 2, 0]);
@@ -125,24 +115,23 @@ class SekmatProgressWidget extends BaseWidget
                 ->chart([12, 10, 8, 6, 4, max(1, $days)]);
         }
 
-        // 4. Stat Total Serapan Anggaran Kecamatan
-        $repo = app(LaporanRepository::class);
-        $summary = $laporan ? $repo->getStatistikKecamatan($laporan) : ['total_pagu' => 0, 'total_realisasi' => 0, 'persentase_serapan' => 0];
+        // 4. Stat Berkas Bukti Dukung Masuk (Menggantikan Serapan Anggaran)
+        $totalBerkas = 0;
+        foreach ($v2Reports as $report) {
+            $totalBerkas += $report->bukti_dukung_count;
+        }
 
-        $serapanFormatted = 'Rp '.number_format($summary['total_realisasi'], 0, ',', '.');
-        $serapanPersen = $summary['persentase_serapan'];
-
-        $anggaranStat = Stat::make('Serapan Belanja Periode Ini', $serapanFormatted)
-            ->description("{$serapanPersen}% dari Pagu Rp ".number_format($summary['total_pagu'], 0, ',', '.'))
-            ->descriptionIcon('heroicon-m-banknotes')
-            ->color($serapanPersen >= 60 && $serapanPersen <= 100 ? 'success' : 'info')
-            ->chart([35, 48, 60, 72, 85, min(100, (int) $serapanPersen)]);
+        $berkasStat = Stat::make('Bukti Dukung Terkumpul', "{$totalBerkas} Berkas Dokumen")
+            ->description("Arsip pertanggungjawaban fisik kegiatan {$namaBulan}")
+            ->descriptionIcon('heroicon-m-folder-arrow-down')
+            ->color($totalBerkas > 0 ? 'success' : 'gray')
+            ->chart([3, 5, 8, 10, 12, max(1, $totalBerkas)]);
 
         return [
             $progressStat,
             $queueStat,
             $cutoffStat,
-            $anggaranStat,
+            $berkasStat,
         ];
     }
 }

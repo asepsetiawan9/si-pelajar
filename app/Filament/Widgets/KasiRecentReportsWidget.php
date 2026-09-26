@@ -88,7 +88,16 @@ class KasiRecentReportsWidget extends BaseWidget
                     ->button()
                     ->size('xs')
                     ->color('primary')
-                    ->url(fn (LaporanKinerjaV2 $record): string => "/admin/laporan-kinerja-v2s/{$record->id}/edit"),
+                    ->url(fn (LaporanKinerjaV2 $record): string => in_array($record->status, ['draft', 'ditolak']) ? "/admin/laporan-kinerja-v2s/{$record->id}/edit" : "/admin/laporan-kinerja-v2s/{$record->id}"),
+
+                Tables\Actions\Action::make('cetak_pdf')
+                    ->label('PDF')
+                    ->icon('heroicon-m-printer')
+                    ->button()
+                    ->size('xs')
+                    ->color('success')
+                    ->url(fn (LaporanKinerjaV2 $record): string => route('spko.laporan-v2.pdf', $record))
+                    ->openUrlInNewTab(),
             ])
             ->emptyStateHeading('Belum Ada Laporan Unit')
             ->emptyStateDescription('Mulai buat laporan kinerja unit Anda dengan menekan tombol "+ Buat Laporan (V2)" di atas.')

@@ -594,6 +594,46 @@
 - Sekmat dan Camat memiliki pusat kendali kinerja 7 unit yang jernih, akurat, dan memiliki visualisasi grafik modern.
 - Zero error, zero regressions, 100% test passing.
 
+---
+
+## 2026-09-26 - Perombakan Total Pelaporan Kinerja Unit (V2): Eliminasi Realisasi, Detail Infolist, & Generator Unduh PDF Dokumen Resmi
+
+### Apa (What):
+1. **Eliminasi Total Angka & Indikator Realisasi (Zero Realisasi Policy)**:
+   - Menghapus seluruh ketergantungan dan tampilan angka realisasi fisik (`realisasi_kinerja`, % Fisik) dan realisasi belanja (`realisasi_anggaran`, Rp Belanja, % Serapan) pada seluruh widget dan tabel sistem.
+   - Sistem dialihkan sepenuhnya ke model Pelaporan Kinerja Unit (V2) berbasis agenda pelaksanaan kerja dan unggah berkas bukti dukung fisik digital.
+2. **Penyempurnaan Model & Skema Database Pelaporan V2 (`LaporanKinerjaV2`)**:
+   - Migrasi `2026_09_26_094949_add_ringkasan_kegiatan_to_laporan_kinerja_v2_table.php` menambahkan kolom `ringkasan_kegiatan` (text, nullable).
+   - Penambahan helper model: `getNamaBulanAttribute()`, `getBuktiDukungCountAttribute()`, dan `getBuktiDukungDetailsAttribute()` untuk parsing berkas, format ekstensi, dan direct URL.
+3. **Perombakan Antarmuka Formulir & Infolist Detail (`LaporanKinerjaV2Resource`)**:
+   - Menambahkan Section Uraian & Ringkasan Pelaksanaan Kinerja pada formulir penginputan.
+   - Membuat implementasi `infolist()` komprehensif pada halaman View: Header Identitas & Agenda, Pejabat Penanggung Jawab, Ringkasan Kinerja, Daftar Berkas Bukti Dukung interaktif (`bukti-dukung-list.blade.php`) dengan tombol "Buka File", "Unduh File", dan "Unduh Semua Berkas (ZIP)", serta Panel Status & Catatan Verifikasi Sekmat.
+4. **Generator Unduh Dokumen PDF Resmi Laporan Kinerja V2**:
+   - Membuat template dokumen cetak resmi `laporan-kinerja-v2-resmi.blade.php` ber-kop Pemerintah Kabupaten Garut - Kecamatan Malangbong, logo Pemkab Garut, nomor registrasi agenda, uraian kegiatan, daftar berkas bukti dukung terverifikasi digital, catatan telaah Sekmat, serta lembar legalisasi ber-tanda tangan Sekmat dan Pejabat Pelapor ber-QR Code enkripsi.
+   - Service method `LaporanPdfService::downloadLaporanV2Pdf()` dan endpoint controller `/laporan-kinerja-v2/{record}/pdf` terlindungi otorisasi Row-Level Security.
+   - Endpoint kompresi ZIP `/laporan-kinerja-v2/{record}/download-files` untuk mengunduh seluruh file bukti dukung sekaligus.
+   - Tombol aksi "Cetak PDF" dan "Unduh Berkas ZIP" pada tabel utama, infolist view, dan widget riwayat Kasi.
+5. **Perombakan Seluruh Dashboard Card & Widget Pimpinan**:
+   - `KasiStatusWidget`: Menghapus persentase fisik & serapan belanja; menampilkan Status Laporan, Batas Pengisian Cut-Off dinamis, Agenda Dilaporkan, dan Berkas Bukti Dukung Terlampir.
+   - `SekmatProgressWidget`: Menghapus total realisasi belanja; menampilkan Progres Verifikasi 7 Unit, Antrean Verifikasi Sekmat, Status Cut-Off, dan Akumulasi Bukti Dukung Terkumpul.
+   - `SekmatUnitStatusTableWidget`: Menghapus kolom Rata-rata Fisik dan Realisasi Belanja; menyajikan Unit Organisasi, Agenda Pelaporan V2, Pejabat Pengisi, Status Laporan, Bukti Dukung, Waktu Pelaporan, serta Tombol Aksi Telaah & Cetak PDF.
+   - `CamatSummaryWidget`: Menghapus efektivitas 88% dan belanja Rp; menyajikan Kepatuhan Pelaporan 7 Unit, Volume Agenda Masuk, Arsip Bukti Dukung Digital, dan Status Verifikasi Kecamatan.
+   - `KecamatanPerformanceChartWidget`: Menghapus grafik capaian fisik & serapan; menyajikan Grafik Aktivitas Pelaporan & Kelengkapan Bukti Dukung 7 Unit Kerja (Emerald: Berkas, Indigo: Agenda).
+6. **Seeder Data 7 Unit Kerja & Automated Testing Suite**:
+   - Pembaruan `LaporanKinerjaV2Seeder.php` mencakup ke-7 unit kerja resmi dengan judul agenda riil, narasi ringkasan kegiatan, dan lampiran berkas contoh untuk periode September dan Agustus 2026.
+   - Penambahan automated test: uji render infolist view, otorisasi download PDF Kasi vs Sekmat, dan verifikasi grafik V2.
+   - Hasil suite pengujian sistem: **63 passed (324 assertions) — 100% GREEN**.
+   - Standardisasi PSR-12 dengan Laravel Pint.
+
+### Kenapa (Why):
+- Memenuhi instruksi langsung Mr Zeps untuk merombak total formulir pelaporan kinerja baru (V2), menyesuaikan card dashboard dan detail laporan, mengeliminasi konsep data realisasi fisik & belanja anggaran, serta menyesuaikan berkas unduhan PDF resmi dengan form baru dan berkas yang diunggah.
+
+### Dampak (Impact):
+- Seluruh antarmuka pimpinan (Camat, Sekmat) dan pelaksana (Kasi) kini 100% selaras dengan alur pelaporan kinerja unit baru berbasis agenda dan bukti dukung fisik digital.
+- Tidak ada lagi data/angka realisasi yang membingungkan pengguna.
+- Dokumen cetak PDF resmi dan berkas lampiran zip dapat langsung diunduh dengan format formal instansi Pemkab Garut.
+- Zero error, zero bug, 63 test suites lulus 100% green.
+
 
 
 

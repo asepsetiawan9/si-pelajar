@@ -19,6 +19,23 @@ class ViewLaporanKinerjaV2 extends ViewRecord
         $isVerifikator = $user?->isAdminKecamatan() || $user?->isSuperAdmin();
 
         return [
+            // Aksi Cetak PDF Resmi
+            Actions\Action::make('cetak_pdf')
+                ->label('Cetak PDF Laporan')
+                ->icon('heroicon-o-printer')
+                ->color('success')
+                ->url(fn () => route('spko.laporan-v2.pdf', $this->record))
+                ->openUrlInNewTab(),
+
+            // Aksi Unduh Berkas ZIP
+            Actions\Action::make('unduh_zip')
+                ->label('Unduh Berkas (ZIP)')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('info')
+                ->url(fn () => route('spko.laporan-v2.files-zip', $this->record))
+                ->openUrlInNewTab()
+                ->visible(fn () => $this->record->bukti_dukung_count > 0),
+
             Actions\EditAction::make()
                 ->visible(fn () => $isVerifikator || in_array($this->record->status, ['draft', 'ditolak'])),
 

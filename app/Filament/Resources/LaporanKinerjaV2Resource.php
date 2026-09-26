@@ -10,6 +10,8 @@ use App\Services\LaporanKinerjaV2Service;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -174,7 +176,20 @@ class LaporanKinerjaV2Resource extends Resource
                             ])
                             ->columns(3),
 
-                        // Section 3: Upload Bukti Dukung
+                        // Section 3: Uraian / Ringkasan Pelaksanaan Kinerja
+                        Forms\Components\Section::make('Uraian & Ringkasan Pelaksanaan Kinerja')
+                            ->description('Tuliskan ringkasan kegiatan, output tugas pokok, atau agenda kerja yang diselesaikan unit')
+                            ->icon('heroicon-o-clipboard-document-list')
+                            ->schema([
+                                Forms\Components\Textarea::make('ringkasan_kegiatan')
+                                    ->label('Ringkasan / Uraian Pelaksanaan Kinerja')
+                                    ->placeholder('Contoh: Pada bulan ini Seksi telah menyelesaikan pelayanan permohonan rekomendasi, fasilitasi administrasi kependudukan, serta koordinasi teknis kewilayahan...')
+                                    ->rows(4)
+                                    ->columnSpanFull()
+                                    ->disabled(fn (?Model $record) => static::isFormLockedForUser($record, $user)),
+                            ]),
+
+                        // Section 4: Upload Bukti Dukung
                         Forms\Components\Section::make('Upload Bukti Dukung')
                             ->description('Unggah berkas bukti dukung kinerja (PDF, DOCX, XLSX, JPG, PNG, atau ZIP)')
                             ->icon('heroicon-o-paper-clip')
@@ -445,6 +460,25 @@ class LaporanKinerjaV2Resource extends Resource
                             ->send();
                     }),
 
+                // Aksi Cetak PDF Resmi Laporan V2
+                Tables\Actions\Action::make('cetak_pdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->tooltip('Cetak Dokumen Resmi Laporan Kinerja')
+                    ->url(fn (LaporanKinerjaV2 $record) => route('spko.laporan-v2.pdf', $record))
+                    ->openUrlInNewTab(),
+
+                // Aksi Unduh Berkas ZIP
+                Tables\Actions\Action::make('unduh_zip')
+                    ->label('Berkas')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('info')
+                    ->tooltip('Unduh seluruh berkas bukti dukung (ZIP)')
+                    ->url(fn (LaporanKinerjaV2 $record) => route('spko.laporan-v2.files-zip', $record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (LaporanKinerjaV2 $record) => $record->bukti_dukung_count > 0),
+
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn (LaporanKinerjaV2 $record) => $isVerifikator || ($record->isDraft() && auth()->user()?->unit_organisasi_id === $record->unit_organisasi_id)),
             ])
@@ -454,6 +488,109 @@ class LaporanKinerjaV2Resource extends Resource
                         ->visible($isVerifikator),
                 ]),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Group::make([
+                    Infolists\Components\Section::make('Informasi & Agenda Pelaporan')
+                        ->icon('heroicon-o-document-text')
+                        ->schema([
+                            Infolists\Components\TextEntry::make('judul_pelaporan')
+                                ->label('Judul Pelaporan / Agenda')
+                                ->weight('bold')
+                                ->size(Infolists\Components\TextEntry\TextEntrySize::Large)
+                                ->columnSpanFull(),
+
+                            Infolists\Components\TextEntry::make('unitOrganisasi.nama_unit')
+                                ->label('Unit Organisasi')
+                                ->badge()
+                                ->color('info'),
+
+                            Infolists\Components\TextEntry::make('periode')
+                                ->label('Periode Pelaporan')
+                                ->state(fn (LaporanKinerjaV2 $record) => "{$record->nama_bulan} {$record->periode_tahun}")
+                                ->weight('medium'),
+
+                            Infolists\Components\TextEntry::make('tanggal_pelaporan')
+                                ->label('Tanggal Pelaporan')
+                                ->date('d F Y'),
+                        ])
+                        ->columns(3),
+
+                    Infolists\Components\Section::make('Pejabat Penanggung Jawab Pelapor')
+                        ->icon('heroicon-o-user')
+                        ->schema([
+                            Infolists\Components\TextEntry::make('nama_pejabat')
+                                ->label('Nama Lengkap')
+                                ->weight('bold'),
+
+                            Infolists\Components\TextEntry::make('nip_pejabat')
+                                ->label('NIP Pejabat'),
+
+                            Infolists\Components\TextEntry::make('jabatan_pejabat')
+                                ->label('Jabatan Resmi'),
+                        ])
+                        ->columns(3),
+
+                    Infolists\Components\Section::make('Uraian & Ringkasan Pelaksanaan Kinerja')
+                        ->icon('heroicon-o-clipboard-document-list')
+                        ->schema([
+                            Infolists\Components\TextEntry::make('ringkasan_kegiatan')
+                                ->label('Ringkasan Tugas / Capaian Kegiatan')
+                                ->default('Unit kerja telah melaksanakan seluruh program tugas pokok dan fungsi operasional sesuai dengan target kerja periode berjalan.')
+                                ->columnSpanFull(),
+                        ]),
+
+                    Infolists\Components\Section::make('Berkas Bukti Dukung yang Dilampirkan')
+                        ->icon('heroicon-o-paper-clip')
+                        ->description('Daftar berkas pertanggungjawaban fisik digital yang diunggah')
+                        ->schema([
+                            Infolists\Components\ViewEntry::make('bukti_dukung')
+                                ->label('')
+                                ->view('filament.infolists.bukti-dukung-list')
+                                ->columnSpanFull(),
+                        ]),
+                ])
+                    ->columnSpan(['lg' => 2]),
+
+                Infolists\Components\Group::make([
+                    Infolists\Components\Section::make('Status & Verifikasi')
+                        ->icon('heroicon-o-shield-check')
+                        ->schema([
+                            Infolists\Components\TextEntry::make('status')
+                                ->label('Status Laporan')
+                                ->badge()
+                                ->formatStateUsing(fn (LaporanKinerjaV2 $record) => $record->status_label)
+                                ->color(fn (LaporanKinerjaV2 $record) => $record->status_color),
+
+                            Infolists\Components\TextEntry::make('submitted_at')
+                                ->label('Waktu Pengiriman')
+                                ->state(fn (LaporanKinerjaV2 $record) => $record->submitted_at ? $record->submitted_at->translatedFormat('d F Y, H:i').' WIB' : 'Belum dikirim')
+                                ->icon('heroicon-m-paper-airplane'),
+
+                            Infolists\Components\TextEntry::make('verifier.name')
+                                ->label('Diverifikasi Oleh')
+                                ->default('-')
+                                ->icon('heroicon-m-user'),
+
+                            Infolists\Components\TextEntry::make('verified_at')
+                                ->label('Waktu Diverifikasi')
+                                ->state(fn (LaporanKinerjaV2 $record) => $record->verified_at ? $record->verified_at->translatedFormat('d F Y, H:i').' WIB' : '-')
+                                ->icon('heroicon-m-clock'),
+
+                            Infolists\Components\TextEntry::make('catatan_verifikasi')
+                                ->label('Catatan Verifikator')
+                                ->default('-')
+                                ->color('danger')
+                                ->visible(fn (LaporanKinerjaV2 $record) => filled($record->catatan_verifikasi)),
+                        ]),
+                ])
+                    ->columnSpan(['lg' => 1]),
+            ])
+            ->columns(3);
     }
 
     public static function getRelations(): array

@@ -100,29 +100,25 @@ class DashboardHeroWidget extends Widget
 
         // Metrik untuk Sekmat & Superadmin
         $mandatoryTotal = UnitOrganisasi::where('wajib_dilaporkan', true)->count();
-        $approvedUnits = $laporanHeader ? $laporanHeader->details()->where('status', 'disetujui')->count() : 0;
-        $pendingV1Count = $laporanHeader ? $laporanHeader->details()->where('status', 'diajukan')->count() : 0;
-        $pendingV2Count = LaporanKinerjaV2::where('status', 'diajukan')->count();
-        $totalPendingSekmat = $pendingV1Count + $pendingV2Count;
+        $v2ApprovedCount = LaporanKinerjaV2::where('periode_bulan', $bulan)
+            ->where('periode_tahun', $tahun)
+            ->where('status', 'disetujui')
+            ->pluck('unit_organisasi_id')
+            ->unique()
+            ->count();
+        $approvedUnits = $v2ApprovedCount ?: ($laporanHeader ? $laporanHeader->details()->where('status', 'disetujui')->count() : 0);
+        $totalPendingSekmat = LaporanKinerjaV2::where('status', 'diajukan')->count();
 
         // Metrik untuk Camat
-        $camatStatusLabel = 'Belum Ada Draf';
-        $camatStatusColor = 'gray';
-        if ($laporanHeader) {
-            $camatStatusLabel = match ($laporanHeader->status) {
-                'draft' => 'Penyusunan Seksi',
-                'menunggu_verifikasi' => 'Verifikasi Sekmat',
-                'diajukan_ke_camat' => 'Siap Anda Sahkan',
-                'disetujui' => 'Telah Resmi Disahkan',
-                'ditolak' => 'Dikembalikan ke Sekmat',
-                default => strtoupper($laporanHeader->status),
-            };
-            $camatStatusColor = match ($laporanHeader->status) {
-                'diajukan_ke_camat' => 'warning',
-                'disetujui' => 'success',
-                'ditolak' => 'danger',
-                default => 'info',
-            };
+        if ($approvedUnits >= $mandatoryTotal) {
+            $camatStatusLabel = 'Seluruh Unit Disetujui';
+            $camatStatusColor = 'success';
+        } elseif ($totalPendingSekmat > 0) {
+            $camatStatusLabel = 'Verifikasi Sekmat';
+            $camatStatusColor = 'warning';
+        } else {
+            $camatStatusLabel = $approvedUnits > 0 ? "{$approvedUnits} Unit Siap" : 'Belum Ada Laporan';
+            $camatStatusColor = $approvedUnits > 0 ? 'info' : 'gray';
         }
 
         return [

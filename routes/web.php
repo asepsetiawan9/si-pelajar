@@ -11,6 +11,12 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     // PDF Downloads
+    Route::get('/laporan-kinerja-v2/{record}/pdf', [LaporanPdfController::class, 'downloadLaporanV2Pdf'])
+        ->name('spko.laporan-v2.pdf');
+
+    Route::get('/laporan-kinerja-v2/{record}/download-files', [LaporanPdfController::class, 'downloadBuktiDukungZip'])
+        ->name('spko.laporan-v2.files-zip');
+
     Route::get('/laporan/{laporan}/pdf', [LaporanPdfController::class, 'downloadKecamatanPdf'])
         ->name('spko.laporan.pdf');
 
