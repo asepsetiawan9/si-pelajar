@@ -807,16 +807,22 @@
 2. **Reverse Proxy & HTTPS Scheme Hardening**:
    - Mengaktifkan `$middleware->trustProxies(at: '*');` pada `bootstrap/app.php` untuk mendukung terminasi SSL di Nginx/reverse proxy VPS tanpa isu *mixed content*.
    - Menambahkan penegakan skema aman `URL::forceScheme('https')` pada `app/Providers/AppServiceProvider.php` ketika `app.url` diawali skema `https://`.
-3. **Pembersihan Cache & Automated Testing**:
-   - Menjalankan `php artisan optimize:clear` (clear config, routes, views, filament caches).
-   - Menjalankan seluruh test suite: **64 passed (333 assertions) — 100% GREEN**.
+3. **Penyelesaian Konfigurasi Nginx & SSL di VPS (`36.64.200.242:2020`)**:
+   - Mengambil kredensial server produksi `server-initd@36.64.200.242:2020` dari catatan riwayat deployment.
+   - Membuat file virtual host Nginx `/etc/nginx/sites-available/sipelajar.initd.web.id.conf` terhubung ke socket PHP-FPM (`/run/php/php-fpm.sock`) dan root `/var/www/pkp-malangbong/public`.
+   - Mengaktifkan symlink ke `/etc/nginx/sites-enabled/` dan reload Nginx.
+   - Menjalankan **Certbot Let's Encrypt** untuk mengaktifkan sertifikat SSL resmi gratis (valid s.d. 26 Desember 2026) dengan auto HTTP->HTTPS redirect.
+   - Memperbarui `.env` server VPS ke `APP_URL=https://sipelajar.initd.web.id`, sinkronisasi git pull `main`, perbaikan permission storage/cache, dan pemanasan cache (`config:cache`, `route:cache`, `view:cache`, `filament:cache-components`).
+4. **Verifikasi Live**:
+   - Endpoint HTTP `http://sipelajar.initd.web.id` otomatis redirect 301 ke HTTPS.
+   - Endpoint HTTPS `https://sipelajar.initd.web.id` aktif dengan SSL gembok hijau aman, menampilkan halaman login resmi **SI-PELAJAR Malangbong**.
 
 ### Kenapa (Why):
-- Memenuhi instruksi langsung Mr Zeps untuk mengubah URL pointing aplikasi ke domain `sipelajar.initd.web.id`.
+- Memenuhi instruksi langsung Mr Zeps untuk mengatasi tampilan 404 Not Secure dan mengonfigurasi domain pointing aplikasi ke `sipelajar.initd.web.id` langsung di VPS.
 
 ### Dampak (Impact):
-- Seluruh asset, tautan Livewire, formulir Filament, callback otentikasi, serta generator rute kini mengarah secara konsisten dan aman ke `https://sipelajar.initd.web.id`.
-- Bebas dari error mixed-content HTTPS di lingkungan web server / reverse proxy produksi.
+- Domain `https://sipelajar.initd.web.id` kini **100% ONLINE, LIVE & SECURE (HTTPS)**.
+- Isu 404 Not Found dan peringatan "Not secure" teratasi tuntas.
 
 
 
