@@ -797,6 +797,27 @@
 - **Blockers**: Nihil (Zero Blockers).
 - **Status**: Production Ready.
 
+---
+
+## 2026-09-27 - Konfigurasi Pointing URL Produksi ke sipelajar.initd.web.id
+
+### Apa (What):
+1. **Pembaruan Konfigurasi Base URL (`APP_URL`)**:
+   - Memperbarui `APP_URL=https://sipelajar.initd.web.id` pada `.env` dan `.env.example`.
+2. **Reverse Proxy & HTTPS Scheme Hardening**:
+   - Mengaktifkan `$middleware->trustProxies(at: '*');` pada `bootstrap/app.php` untuk mendukung terminasi SSL di Nginx/reverse proxy VPS tanpa isu *mixed content*.
+   - Menambahkan penegakan skema aman `URL::forceScheme('https')` pada `app/Providers/AppServiceProvider.php` ketika `app.url` diawali skema `https://`.
+3. **Pembersihan Cache & Automated Testing**:
+   - Menjalankan `php artisan optimize:clear` (clear config, routes, views, filament caches).
+   - Menjalankan seluruh test suite: **64 passed (333 assertions) — 100% GREEN**.
+
+### Kenapa (Why):
+- Memenuhi instruksi langsung Mr Zeps untuk mengubah URL pointing aplikasi ke domain `sipelajar.initd.web.id`.
+
+### Dampak (Impact):
+- Seluruh asset, tautan Livewire, formulir Filament, callback otentikasi, serta generator rute kini mengarah secara konsisten dan aman ke `https://sipelajar.initd.web.id`.
+- Bebas dari error mixed-content HTTPS di lingkungan web server / reverse proxy produksi.
+
 
 
 
