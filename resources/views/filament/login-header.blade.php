@@ -9,6 +9,6 @@
         Kecamatan Malangbong
     </h1>
     <div class="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300">
-        Sistem Informasi Pelaporan Kinerja (SI-PELAJAR)
+        Sistem Informasi Pelaporan Kinerja (SI-PEKA)
     </div>
 </div>

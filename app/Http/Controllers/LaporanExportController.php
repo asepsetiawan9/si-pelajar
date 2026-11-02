@@ -30,7 +30,7 @@ class LaporanExportController extends Controller
 
         $date = Carbon::parse($laporan->bulan_pelaporan);
         $filename = sprintf(
-            'SI-PELAJAR-Kecamatan-Malangbong-%s-%s.xlsx',
+            'SI-PEKA-Kecamatan-Malangbong-%s-%s.xlsx',
             $date->translatedFormat('F'),
             $laporan->tahun
         );
@@ -57,7 +57,7 @@ class LaporanExportController extends Controller
         $date = Carbon::parse($detail->laporan->bulan_pelaporan);
         $unitCode = $detail->unitOrganisasi?->kode_unit ?? 'UNIT';
         $filename = sprintf(
-            'SI-PELAJAR-%s-%s-%s.xlsx',
+            'SI-PEKA-%s-%s-%s.xlsx',
             $unitCode,
             $date->translatedFormat('F'),
             $detail->laporan->tahun

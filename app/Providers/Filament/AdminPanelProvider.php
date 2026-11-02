@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('SI-PELAJAR Kec. Malangbong')
+            ->brandName('SI-PEKA Kec. Malangbong')
             ->brandLogo(fn () => view('filament.brand-logo'))
             ->brandLogoHeight('2.5rem')
             ->favicon(asset('logo.png'))

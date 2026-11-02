@@ -824,6 +824,70 @@
 - Domain `https://sipelajar.initd.web.id` kini **100% ONLINE, LIVE & SECURE (HTTPS)**.
 - Isu 404 Not Found dan peringatan "Not secure" teratasi tuntas.
 
+---
+
+## 2026-09-28 - Hasil Rapat: Modul Baru RAP/SPJ (Arsip Digital Bukti Belanja)
+
+### Apa (What):
+1. **Pencatatan Hasil Rapat Pengembangan Modul Baru**:
+   - Berdasarkan hasil rapat 28 September 2026, Mr Zeps memberikan arahan pengembangan modul baru: **RAP/SPJ — Arsip Digital Bukti Belanja** Kecamatan Malangbong.
+   - Modul ini terintegrasi ke dalam aplikasi SI-PELAJAR yang sudah berjalan.
+   - Inti modul: setiap belanja SPJ memiliki dokumen bukti digital (nota, kwitansi, faktur, kontrak, dokumen lainnya) yang tersimpan rapi, mudah dicari, dan melalui proses verifikasi berjenjang (Operator → Sekmat → Camat).
+2. **Pembuatan Catatan Pengembangan Komprehensif**:
+   - Dibuat `CATATAN_PENGEMBANGAN_RAP_SPJ.md` sebagai blueprint utama modul RAP/SPJ.
+   - Berisi: konteks, prinsip pengembangan, acuan format manual, konsep aplikasi, skema database (5 tabel baru: `rap_programs`, `rap_kegiatans`, `rap_sub_kegiatans`, `rap_belanjas`, `rap_bukti_belanjas`), alur verifikasi, dan instruksi AI per fase (RAP-1 s.d RAP-4).
+3. **Keputusan: Fitur BMD DI-HIDE**:
+   - Fitur BMD (Barang Milik Daerah) TIDAK termasuk scope pengembangan saat ini.
+   - Unit "Sub Bagian Keuangan dan BMD" tetap ada, tetapi modul BMD tidak dikembangkan.
+4. **Instruksi AI Siap Eksekusi**:
+   - 4 Fase pengembangan (RAP-1 s.d RAP-4) dengan prompt execution blocks lengkap.
+   - Fase RAP-1: Fondasi master data (Program → Kegiatan → Sub Kegiatan).
+   - Fase RAP-2: Formulir belanja & upload bukti belanja digital.
+   - Fase RAP-3: Alur verifikasi Sekmat & persetujuan Camat.
+   - Fase RAP-4: Dashboard sederhana, pencarian dokumen & polish.
+
+### Kenapa (Why):
+- Memenuhi arahan langsung Mr Zeps dari hasil rapat untuk mencatat kebutuhan pengembangan modul RAP/SPJ sebagai arsip digital bukti belanja yang terstruktur dan siap dieksekusi AI.
+- Fitur BMD dihilangkan dari scope agar fokus pengembangan tetap terarah.
+
+### Dampak (Impact):
+- Blueprint modul RAP/SPJ 100% siap dieksekusi per fase kapan saja Mr Zeps memberikan instruksi mulai coding.
+- Dokumen referensi: `CATATAN_PENGEMBANGAN_RAP_SPJ.md`.
+- Reuse penuh infrastruktur SI-PELAJAR existing (RBAC, users, unit organisasi, Filament panel, Activity Log, Notifications).
+
+### Pending / Blockers:
+- **Pending**: Eksekusi Fase RAP-1 s.d RAP-4 (menunggu instruksi Mr Zeps).
+- **Blockers**: Nihil.
+
+---
+
+## 2026-11-02 - Perubahan Nama Sistem Menjadi SI-PEKA (Sistem Informasi Pelaporan Kinerja)
+
+### Apa (What):
+1. **Perubahan Identitas & Branding Aplikasi ke SI-PEKA**:
+   - Memperbarui nama aplikasi dari `SI-PELAJAR` menjadi **SI-PEKA** (Sistem Informasi Pelaporan Kinerja) secara menyeluruh pada:
+     * `.env` & `.env.example`: `APP_NAME="SI-PEKA"`
+     * `config/app.php`: Default fallback name `'SI-PEKA'`
+     * `app/Providers/Filament/AdminPanelProvider.php`: `brandName('SI-PEKA Kec. Malangbong')`
+     * `resources/views/filament/brand-logo.blade.php`: Teks logo navigasi `SI-PEKA Malangbong`
+     * `resources/views/filament/login-header.blade.php`: Subtitle halaman login `Sistem Informasi Pelaporan Kinerja (SI-PEKA)`
+     * `app/Filament/Pages/Dashboard.php`: Judul dashboard `Dashboard Akuntabilitas SI-PEKA`
+     * `resources/views/pdf/laporan-kinerja-resmi.blade.php` & `resources/views/pdf/laporan-kinerja-v2-resmi.blade.php`: Nomor registrasi (`SI-PEKA/V2/...`), caption QR verifikasi (`TERVERIFIKASI SI-PEKA`), dan catatan keabsahan dokumen elektronik.
+     * `app/Services/LaporanPdfService.php`: Payload QR code & salt hash verifikasi digital (`SI-PEKA KECAMATAN MALANGBONG`).
+     * `app/Http/Controllers/LaporanExportController.php`: Prefix nama file ekspor Excel (`SI-PEKA-*.xlsx`).
+     * `app/Console/Commands/CheckSpkoDeadlineCommand.php`: Judul notifikasi pengingat H-3 & H-1 cut-off (`Batas Waktu Pelaporan SI-PEKA`).
+     * `.agent/STRUCTURE.md`: Pembaruan identitas proyek pada peta navigasi.
+2. **Pembersihan Cache & Pengujian Otomatis**:
+   - Menjalankan `php artisan config:clear` dan `php artisan view:clear`.
+   - Menjalankan seluruh suite pengujian otomatis: **64 passed (333 assertions) — 100% GREEN**.
+
+### Kenapa (Why):
+- Memenuhi instruksi langsung Mr Zeps untuk mengganti nama sistem menjadi **SI-PEKA** (Sistem Informasi Pelaporan Kinerja).
+
+### Dampak (Impact):
+- Seluruh antarmuka pengguna (Halaman Login, Sidebar/Topbar Panel Admin, Dashboard), notifikasi sistem, nama berkas ekspor Excel, hingga dokumen cetak PDF resmi dan QR Code pengesahan kini seragam menyandang identitas **SI-PEKA (Sistem Informasi Pelaporan Kinerja)**.
+- Seluruh 64 pengujian fitur berjalan 100% lulus tanpa regresi.
+
 
 
 

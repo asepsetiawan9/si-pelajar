@@ -1,7 +1,7 @@
 # PROJECT STRUCTURE & NAVIGATION MAP
-**Project:** Sistem Informasi Pelaporan Kinerja (SI-PELAJAR) - Kecamatan Malangbong  
+**Project:** Sistem Informasi Pelaporan Kinerja (SI-PEKA) - Kecamatan Malangbong  
 **Tech Stack:** Laravel 11 + Filament v3 (PHP 8.2+, MySQL/PostgreSQL)  
-**Main Reference:** `CATATAN_PENGEMBANGAN_SPKO.md` & `Catatan Pengembangan_ Sistem Pelaporan Kinerja Organisasi.html`
+**Main Reference:** `CATATAN_PENGEMBANGAN_SPKO.md` & `CATATAN_PENGEMBANGAN_RAP_SPJ.md` & `Catatan Pengembangan_ Sistem Pelaporan Kinerja Organisasi.html`
 
 ## Architecture Overview
 - Single-Tenant internal Kecamatan Malangbong.
@@ -114,5 +114,17 @@
   - `tests/Feature/DashboardAndExportTest.php`: Suite pengujian dashboard per role, filter tahun/bulan, scheduled task deadline cut-off, multi-sheet Excel export, proteksi unduh lampiran, dan simulasi alur end-to-end 88 pemohon hingga pengesahan Camat.
   - `tests/Feature/CustomCutoffTest.php`: Suite pengujian jadwal & cut-off dinamis (buka bebas, kunci manual, custom datetime).
   - `tests/Feature/DummyDataSeederTest.php`: Suite pengujian validasi integritas dummy data seeder 3 periode dan komputasi grafik analitik.
+
+## Modul RAP/SPJ — Arsip Digital Bukti Belanja (BARU — Menunggu Eksekusi)
+- **Blueprint**: `CATATAN_PENGEMBANGAN_RAP_SPJ.md` (AI-Ready Execution Blueprint, 4 Fase: RAP-1 s.d RAP-4).
+- **Konsep**: Arsip digital SPJ — setiap belanja memiliki bukti dokumen digital (nota, kwitansi, faktur, kontrak, lainnya) yang mudah dicari dan diverifikasi.
+- **Hierarki**: Program → Kegiatan → Sub Kegiatan → Belanja → Bukti Belanja → File Dokumen.
+- **Alur Verifikasi**: Operator (Kasi) → Sekmat → Camat.
+- **5 Tabel Baru (prefix `rap_`)**: `rap_programs`, `rap_kegiatans`, `rap_sub_kegiatans`, `rap_belanjas`, `rap_bukti_belanjas`.
+- **Status**: ⏳ Menunggu eksekusi Fase RAP-1 s.d RAP-4.
+
+## Modul HIDDEN (Tidak Dikembangkan Saat Ini)
+- **Fitur BMD (Barang Milik Daerah)**: 🔒 HIDDEN — tidak termasuk scope. Unit "Sub Bagian Keuangan dan BMD" tetap ada, modul BMD tidak dikembangkan.
+- **Laporan Kinerja V1 (LaporanDetailResource)**: 🔒 HIDDEN — di-hide dari navigasi sidebar sejak V2 aktif, tetap utuh di codebase.
 
 
