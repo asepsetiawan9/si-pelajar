@@ -880,12 +880,20 @@
 2. **Pembersihan Cache & Pengujian Otomatis**:
    - Menjalankan `php artisan config:clear` dan `php artisan view:clear`.
    - Menjalankan seluruh suite pengujian otomatis: **64 passed (333 assertions) — 100% GREEN**.
+3. **Git Push, Deployment VPS & Konfigurasi Domain `https://sipeka.initd.web.id`**:
+   - Memperbarui `APP_URL=https://sipeka.initd.web.id` pada `.env` dan `.env.example`.
+   - Commit dan push pembaruan ke GitHub remote repository (`origin/versi-2` & `origin/main` - commit `4f1a5f5`).
+   - Menarik perubahan terbaru di server VPS produksi (`36.64.200.242:2020` - `/var/www/pkp-malangbong`).
+   - Membuat konfigurasi virtual host Nginx `/etc/nginx/sites-available/sipeka.initd.web.id.conf`, mengaktifkan symlink, dan menerbitkan sertifikat SSL resmi **Let's Encrypt** via Certbot (`https://sipeka.initd.web.id`, aktif s.d. 31 Januari 2027) dengan auto HTTP->HTTPS redirect.
+   - Memperbarui `.env` produksi di VPS (`APP_NAME="SI-PEKA"`, `APP_URL=https://sipeka.initd.web.id`) serta menyegarkan seluruh cache Laravel & Filament (`config:cache`, `route:cache`, `view:cache`, `filament:cache-components`).
+   - Verifikasi live endpoint `https://sipeka.initd.web.id/admin/login`: **HTTP 200 OK (SSL Active)** dengan cookie `si-peka-session` dan branding **SI-PEKA Kec. Malangbong**.
 
 ### Kenapa (Why):
-- Memenuhi instruksi langsung Mr Zeps untuk mengganti nama sistem menjadi **SI-PEKA** (Sistem Informasi Pelaporan Kinerja).
+- Memenuhi instruksi langsung Mr Zeps untuk mengganti nama sistem menjadi **SI-PEKA** (Sistem Informasi Pelaporan Kinerja), mem-push ke Git, melakukan deployment ke server VPS, dan mengubah domain frontend ke `https://sipeka.initd.web.id`.
 
 ### Dampak (Impact):
 - Seluruh antarmuka pengguna (Halaman Login, Sidebar/Topbar Panel Admin, Dashboard), notifikasi sistem, nama berkas ekspor Excel, hingga dokumen cetak PDF resmi dan QR Code pengesahan kini seragam menyandang identitas **SI-PEKA (Sistem Informasi Pelaporan Kinerja)**.
+- Domain produksi `https://sipeka.initd.web.id` telah aktif penuh dengan sertifikat SSL resmi Let's Encrypt tanpa mengganggu aplikasi lain di VPS.
 - Seluruh 64 pengujian fitur berjalan 100% lulus tanpa regresi.
 
 
