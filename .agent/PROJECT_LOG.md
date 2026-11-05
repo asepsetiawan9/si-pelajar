@@ -929,12 +929,19 @@
      * Uji hak akses Sekmat dan Superadmin untuk membuka dan mengunduh berkas.
    - Hasil pengujian: **67 passed (346 assertions) — 100% GREEN**.
 
+6. **Git Push & Deployment ke Server VPS (`sipeka.initd.web.id`)**:
+   - Seluruh perubahan berhasil di-commit dan di-push ke GitHub remote repository (`origin/versi-2` dan `origin/main`).
+   - Kode terbaru ditarik di server VPS produksi (`36.64.200.242:2020` - `/var/www/pkp-malangbong`) pada branch `versi-2`.
+   - Regenerasi berkas fisik sample di server via `php artisan db:seed --class=LaporanKinerjaV2Seeder --force`.
+   - Penyegaran cache produksi (`optimize:clear`, `config:cache`, `route:cache`, `view:cache`, `filament:cache-components`).
+   - Verifikasi live endpoint `https://sipeka.initd.web.id/admin/login`: **HTTP 200 OK (SSL Active, PHP 8.5 Production Mode)**.
+
 ### Kenapa (Why):
-- Memenuhi permintaan Mr Zeps untuk memperbaiki tombol "Buka" pada Berkas Bukti Dukung yang Dilampirkan di halaman detail laporan kinerja unit V2 (`admin/laporan-kinerja-v2s`) yang sebelumnya tidak dapat dibuka di sistem yang sudah dideploy.
+- Memenuhi instruksi Mr Zeps untuk mem-push kode ke repository Git dan memperbarui sistem langsung di server VPS produksi.
 
 ### Dampak (Impact):
-- Tombol "Buka" dan "Unduh" kini 100% andal di seluruh lingkungan (lokal maupun server produksi) tanpa bergantung pada symlink web server, lengkap dengan keamanan Row-Level Security dan tampilan dokumen resmi.
-- Seluruh 67 pengujian fitur sistem berjalan 100% sukses.
+- Perbaikan fitur "Buka" dan "Unduh" berkas bukti dukung Laporan Kinerja V2 telah aktif 100% secara live di server produksi `https://sipeka.initd.web.id`.
+- Seluruh 13 berkas fisik sampel dan berkas yang diunggah pengguna kini dapat dibuka langsung di tab baru secara cepat, aman, dan tanpa kendala 404.
 
 
 
