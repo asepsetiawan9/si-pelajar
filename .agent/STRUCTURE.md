@@ -32,13 +32,14 @@
     - `LaporanRepository.php`: Abstraksi kueri database untuk laporan bulanan, detail unit, progres 7 unit wajib, dan statistik kinerja kecamatan.
     - `LaporanKinerjaV2Repository.php`: Abstraksi kueri database pelaporan kinerja unit versi 2 (filter per unit Kasi, CRUD, eager loading).
   - `Services/`:
+    - `BuktiDukungService.php`: Layanan resolusi berkas bukti dukung V2, pembuatan dokumen placeholder resmi (PDF, JPG, XLSX) jika berkas belum ada di server fisik, serta streaming inline view dan download attachment.
     - `LaporanApprovalService.php`: Logika bisnis persetujuan berjenjang: verifikasi Sekmat (setujui/kembalikan), dispensasi cut-off, pengajuan gabungan ke Camat, dan pengesahan resmi Camat beserta audit log & notifikasi.
     - `LaporanPdfService.php`: Generator dokumen PDF resmi ber-kop surat Pemkab Garut - Kecamatan Malangbong berstandar Permenpan-RB dilengkapi barcode/QR-code verifikasi tanda tangan digital.
     - `LaporanKinerjaV2Service.php`: Logika bisnis pengiriman laporan v2 (draft -> diajukan), persetujuan Sekmat/Admin, dan pengembalian revisi beserta notifikasi database otomatis.
   - `Http/Controllers/`:
     - `LaporanPdfController.php`: Controller streaming dan pengunduhan berkas PDF resmi per unit dan rekapitulasi kompilasi kecamatan dengan validasi otorisasi.
     - `LaporanExportController.php`: Controller streaming dan pengunduhan berkas Excel multi-sheet (.xlsx) untuk rekap kecamatan dan unit perorangan.
-    - `LaporanDokumenController.php`: Controller pengunduhan berkas bukti dukung fisik dengan sanitasi nama berkas dan proteksi Row-Level Security.
+    - `LaporanDokumenController.php`: Controller pengunduhan dan penayangan berkas bukti dukung fisik digital (V1 dan V2) dengan proteksi Row-Level Security dan streaming inline view di tab baru.
   - `Policies/`:
     - `LaporanDetailPolicy.php`: Row-Level Security Policy untuk isolasi unit Kasi, hak delegasi Sekmat, dan validasi form lock pasca submit/cut-off.
     - `LaporanKinerjaV2Policy.php`: Row-Level Security Policy pelaporan versi 2 (isolasi unit Kasi, kunci form pasca pengajuan, otorisasi verifikasi Sekmat/Admin).

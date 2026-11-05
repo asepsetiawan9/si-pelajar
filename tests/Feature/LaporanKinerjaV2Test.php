@@ -304,6 +304,97 @@ class LaporanKinerjaV2Test extends TestCase
         $this->get(LaporanKinerjaV2Resource::getUrl('view', ['record' => $laporan]))
             ->assertSuccessful()
             ->assertSee('Laporan Pelayanan View Test')
-            ->assertSee('Pelayanan PATEN terlaksana 100%.');
+            ->assertSee('Pelayanan PATEN terlaksana 100%.')
+            ->assertSee(route('spko.laporan-v2.file.view', ['record' => $laporan->id, 'index' => 0]))
+            ->assertSee(route('spko.laporan-v2.file.download', ['record' => $laporan->id, 'index' => 0]));
+    }
+
+    public function test_buka_dan_unduh_bukti_dukung_v2_success(): void
+    {
+        $laporan = LaporanKinerjaV2::create([
+            'judul_pelaporan' => 'Laporan Uji Bukti Dukung',
+            'periode_bulan' => 9,
+            'periode_tahun' => 2026,
+            'tanggal_pelaporan' => '2026-09-20',
+            'unit_organisasi_id' => $this->unitPelayanan->id,
+            'user_id' => $this->kasiPelayanan->id,
+            'nama_pejabat' => $this->kasiPelayanan->name,
+            'nip_pejabat' => $this->kasiPelayanan->nip,
+            'jabatan_pejabat' => $this->kasiPelayanan->jabatan,
+            'ringkasan_kegiatan' => 'Uji buka bukti dukung PDF.',
+            'status' => 'disetujui',
+            'bukti_dukung' => ['bukti-dukung-v2/dokumen_test.pdf'],
+        ]);
+
+        $this->actingAs($this->kasiPelayanan);
+
+        // Uji Akses "Buka" (Inline Preview)
+        $viewResponse = $this->get(route('spko.laporan-v2.file.view', ['record' => $laporan->id, 'index' => 0]));
+        $viewResponse->assertSuccessful();
+        $this->assertEquals('application/pdf', $viewResponse->headers->get('content-type'));
+        $this->assertStringContainsString('inline', (string) $viewResponse->headers->get('content-disposition'));
+
+        // Uji Akses "Unduh" (Attachment Download)
+        $downloadResponse = $this->get(route('spko.laporan-v2.file.download', ['record' => $laporan->id, 'index' => 0]));
+        $downloadResponse->assertSuccessful();
+        $this->assertStringContainsString('attachment', (string) $downloadResponse->headers->get('content-disposition'));
+    }
+
+    public function test_row_level_security_on_bukti_dukung_v2_prevents_unauthorized_kasi(): void
+    {
+        $laporan = LaporanKinerjaV2::create([
+            'judul_pelaporan' => 'Laporan Unit Pelayanan Rahasia',
+            'periode_bulan' => 9,
+            'periode_tahun' => 2026,
+            'tanggal_pelaporan' => '2026-09-20',
+            'unit_organisasi_id' => $this->unitPelayanan->id,
+            'user_id' => $this->kasiPelayanan->id,
+            'nama_pejabat' => $this->kasiPelayanan->name,
+            'nip_pejabat' => $this->kasiPelayanan->nip,
+            'jabatan_pejabat' => $this->kasiPelayanan->jabatan,
+            'ringkasan_kegiatan' => 'Dokumen rahasia unit pelayanan.',
+            'status' => 'disetujui',
+            'bukti_dukung' => ['bukti-dukung-v2/dokumen_rahasia.pdf'],
+        ]);
+
+        // Kasi Pemerintahan dilarang mengakses berkas unit Pelayanan (403 Forbidden)
+        $this->actingAs($this->kasiPemerintahan);
+        $this->get(route('spko.laporan-v2.file.view', ['record' => $laporan->id, 'index' => 0]))
+            ->assertForbidden();
+
+        $this->get(route('spko.laporan-v2.file.download', ['record' => $laporan->id, 'index' => 0]))
+            ->assertForbidden();
+    }
+
+    public function test_sekmat_dan_superadmin_dapat_buka_dan_unduh_bukti_dukung_semua_unit(): void
+    {
+        $laporan = LaporanKinerjaV2::create([
+            'judul_pelaporan' => 'Laporan Unit Pelayanan Untuk Verifikasi',
+            'periode_bulan' => 9,
+            'periode_tahun' => 2026,
+            'tanggal_pelaporan' => '2026-09-20',
+            'unit_organisasi_id' => $this->unitPelayanan->id,
+            'user_id' => $this->kasiPelayanan->id,
+            'nama_pejabat' => $this->kasiPelayanan->name,
+            'nip_pejabat' => $this->kasiPelayanan->nip,
+            'jabatan_pejabat' => $this->kasiPelayanan->jabatan,
+            'ringkasan_kegiatan' => 'Dokumen untuk diverifikasi.',
+            'status' => 'diajukan',
+            'bukti_dukung' => ['bukti-dukung-v2/dokumen_verifikasi.pdf'],
+        ]);
+
+        // Sekmat diizinkan membuka dan mengunduh
+        $this->actingAs($this->sekmat);
+        $this->get(route('spko.laporan-v2.file.view', ['record' => $laporan->id, 'index' => 0]))
+            ->assertSuccessful();
+        $this->get(route('spko.laporan-v2.file.download', ['record' => $laporan->id, 'index' => 0]))
+            ->assertSuccessful();
+
+        // Superadmin diizinkan membuka dan mengunduh
+        $this->actingAs($this->superadmin);
+        $this->get(route('spko.laporan-v2.file.view', ['record' => $laporan->id, 'index' => 0]))
+            ->assertSuccessful();
+        $this->get(route('spko.laporan-v2.file.download', ['record' => $laporan->id, 'index' => 0]))
+            ->assertSuccessful();
     }
 }

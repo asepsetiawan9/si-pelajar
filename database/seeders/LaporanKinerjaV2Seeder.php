@@ -150,5 +150,16 @@ class LaporanKinerjaV2Seeder extends Seeder
                 ]
             );
         }
+
+        // Generate physical placeholder files for all seeded records
+        $buktiService = app(\App\Services\BuktiDukungService::class);
+        $allReports = LaporanKinerjaV2::all();
+        foreach ($allReports as $report) {
+            if (! empty($report->bukti_dukung) && is_array($report->bukti_dukung)) {
+                foreach ($report->bukti_dukung as $file) {
+                    $buktiService->resolveFilePath($report, $file);
+                }
+            }
+        }
     }
 }

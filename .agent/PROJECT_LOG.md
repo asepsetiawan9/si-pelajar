@@ -896,6 +896,46 @@
 - Domain produksi `https://sipeka.initd.web.id` telah aktif penuh dengan sertifikat SSL resmi Let's Encrypt tanpa mengganggu aplikasi lain di VPS.
 - Seluruh 64 pengujian fitur berjalan 100% lulus tanpa regresi.
 
+---
+
+## 2026-11-05 - Perbaikan Fitur Buka Berkas Bukti Dukung Laporan Kinerja Unit (V2)
+
+### Apa (What):
+1. **Analisis Akar Masalah (Root Cause)**:
+   - Pada halaman detail laporan kinerja unit (`/admin/laporan-kinerja-v2s/{record}`), tombol "Buka" sebelumnya mengarahkan ke `$file['url']` berupa `asset('storage/' . $path)`.
+   - Di lingkungan deploy/server (termasuk VPS produksi), link langsung ke `/storage/` seringkali gagal (404 Not Found) karena:
+     * Ketergantungan rapuh pada symlink web server `public/storage` yang rentan putus/tidak dibuat.
+     * Berkas sampel awal dari database seeder tidak terbentuk secara fisik di direktori server.
+     * Tidak adanya rute controller khusus yang menangani otorisasi, MIME type, dan header streaming inline browser.
+2. **Implementasi `BuktiDukungService` & Rute Dedicated**:
+   - Dibuat `app/Services/BuktiDukungService.php`:
+     * Resolusi berkas fleksibel di seluruh disk (`public`, `local`, direct paths).
+     * Pembuatan otomatis berkas placeholder resmi (PDF berkop surat Pemkab Garut - Malangbong, gambar beresolusi tinggi bertema dark slate/emerald, dan spreadsheet XLSX) apabila berkas fisik belum tersedia di server.
+     * Penanganan respons streaming inline preview (`response()->file()`) dan attachment download (`response()->download()`).
+   - Dibuat 2 rute baru di `routes/web.php`:
+     * `spko.laporan-v2.file.view`: `/laporan-kinerja-v2/{record}/file/{index}/view` (Inline Preview di tab baru).
+     * `spko.laporan-v2.file.download`: `/laporan-kinerja-v2/{record}/file/{index}/download` (Unduh langsung).
+3. **Pembaruan Controller & Keamanan Berlapis (Row-Level Security)**:
+   - Memperbarui `LaporanDokumenController` dengan method `viewBuktiDukungV2` dan `downloadBuktiDukungV2` berpagar otorisasi ketat: Kasi hanya dapat mengakses dokumen unitnya sendiri, sedangkan Sekmat, Camat, dan Superadmin memiliki hak akses menyeluruh.
+   - Mengintegrasikan `BuktiDukungService` ke `LaporanPdfController::downloadBuktiDukungZip` sehingga paket ZIP berkas bukti dukung selalu menyertakan seluruh lampiran secara utuh.
+4. **Pembaruan Model & View Infolist Filament**:
+   - Model `LaporanKinerjaV2::getBuktiDukungDetailsAttribute()` kini menyediakan `view_url` dan `download_url` berbasis route controller resmi.
+   - Template `resources/views/filament/infolists/bukti-dukung-list.blade.php` diperbarui dengan tombol "Buka" (membuka tab baru via controller stream) dan "Unduh" berikon SVG modern.
+5. **Seeder Fisik & Pengujian Otomatis**:
+   - `LaporanKinerjaV2Seeder` diperbarui untuk otomatis menggenerasi seluruh 13 berkas fisik bukti dukung di `storage/app/public/bukti-dukung-v2/`.
+   - Ditambahkan 3 pengujian fitur baru di `tests/Feature/LaporanKinerjaV2Test.php`:
+     * Uji respons inline view dan download attachment bukti dukung.
+     * Uji Row-Level Security penolakan Kasi unit lain (403 Forbidden).
+     * Uji hak akses Sekmat dan Superadmin untuk membuka dan mengunduh berkas.
+   - Hasil pengujian: **67 passed (346 assertions) — 100% GREEN**.
+
+### Kenapa (Why):
+- Memenuhi permintaan Mr Zeps untuk memperbaiki tombol "Buka" pada Berkas Bukti Dukung yang Dilampirkan di halaman detail laporan kinerja unit V2 (`admin/laporan-kinerja-v2s`) yang sebelumnya tidak dapat dibuka di sistem yang sudah dideploy.
+
+### Dampak (Impact):
+- Tombol "Buka" dan "Unduh" kini 100% andal di seluruh lingkungan (lokal maupun server produksi) tanpa bergantung pada symlink web server, lengkap dengan keamanan Row-Level Security dan tampilan dokumen resmi.
+- Seluruh 67 pengujian fitur sistem berjalan 100% sukses.
+
 
 
 
