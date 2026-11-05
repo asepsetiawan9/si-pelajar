@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Laporan;
 use App\Models\LaporanDetail;
 use App\Models\LaporanKinerjaV2;
+use App\Services\BuktiDukungService;
 use App\Services\LaporanPdfService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,8 @@ use ZipArchive;
 class LaporanPdfController extends Controller
 {
     public function __construct(
-        protected LaporanPdfService $pdfService
+        protected LaporanPdfService $pdfService,
+        protected BuktiDukungService $buktiDukungService
     ) {}
 
     /**
@@ -65,9 +67,9 @@ class LaporanPdfController extends Controller
         $zip = new ZipArchive;
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             foreach ($files as $filePath) {
-                $fullPath = Storage::disk('public')->path($filePath);
+                $fullPath = $this->buktiDukungService->resolveFilePath($record, $filePath);
                 if (file_exists($fullPath)) {
-                    $zip->addFile($fullPath, basename($filePath));
+                    $zip->addFile($fullPath, basename($fullPath));
                 }
             }
             $zip->close();

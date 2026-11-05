@@ -33,4 +33,11 @@ Route::middleware(['auth'])->group(function () {
     // Secure Document Attachment Download
     Route::get('/laporan-dokumen/{dokumen}/download', [LaporanDokumenController::class, 'download'])
         ->name('spko.dokumen.download');
+
+    // Secure Bukti Dukung V2 (Inline View & Attachment Download)
+    Route::get('/laporan-kinerja-v2/{record}/file/{index}/view', [LaporanDokumenController::class, 'viewBuktiDukungV2'])
+        ->name('spko.laporan-v2.file.view');
+
+    Route::get('/laporan-kinerja-v2/{record}/file/{index}/download', [LaporanDokumenController::class, 'downloadBuktiDukungV2'])
+        ->name('spko.laporan-v2.file.download');
 });

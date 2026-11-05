@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             return ($user instanceof User && $user->isSuperAdmin()) ? true : null;
         });
 
-        if (str_starts_with((string) config('app.url'), 'https://')) {
+        if (app()->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
     }
